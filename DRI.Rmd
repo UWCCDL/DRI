@@ -1,0 +1,134 @@
+---
+title: "DRI"
+author: "Andrea Stocco"
+date: "11/16/2016"
+output:
+  html_document:
+    code_folding: hide
+    theme: yeti
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# DRI Experiment
+
+```{r results="hide", warning=FALSE}
+library(Rmisc)
+library(matlab)
+library(broom)
+library(knitr)
+library(dplyr)
+library(pander)
+source("functions.R")
+```
+
+First, we load the data
+
+```{r}
+data <- read.table("andrea_data.csv", header=T, sep=",")
+```
+
+Then, we need to convert the original binary data format into meaningful, named, factors:
+
+```{r}
+data$Instructed[data$Instructed == 0] <- "Inferred"
+data$Instructed[data$Instructed == 1] <- "Instructed"
+
+data$Rule[data$Rule == 0] <- "Symbolic"
+data$Rule[data$Rule == 1] <- "Concrete"
+
+data$Stimulation[data$Stimulation == 0] <- "Early"
+data$Stimulation[data$Stimulation == 1] <- "Late"
+data$Stimulation[data$Stimulation == 2] <- "NoStimulation"
+
+data$Site[data$Site == 0] <- "PMd"
+data$Site[data$Site == 1] <- "Vertex"
+
+data$Subject <- as.factor(data$Subject)
+
+data <- subset(data, data$Site != "NaN")
+```
+
+We can then perform a 2x2x3x2 ANOVA, with _Instructed_, _Rule_, _Stimulation_, and _Site_ as the factors, and _Subject_ as the random factor. 
+
+```{r results="hide"}
+acc <- aggregate(data[c("Accuracy")], list(Instructed=data$Instructed, Rule=data$Rule, 
+                                           Stimulation=data$Stimulation, Site=data$Site,
+                                           Subject=data$Subject),
+                 mean)
+  
+
+model <- aov(acc$Accuracy ~ (Instructed * Rule * Stimulation * Site) 
+            + Error(Subject/(Instructed * Rule * Stimulation * Site)), 
+            acc)
+```
+```{r}
+panderOptions("table.style", "rmarkdown")
+panderOptions('digits', 3)
+pander(model)
+```
+The we analyze the response times for correct trials only.
+
+```{r}
+correct <- subset(data, data$Accuracy == 1 & !is.na(data$ResponseTime))
+
+d <- aggregate(correct[c("EncodingTime", "ResponseTime")], list(Instructed=correct$Instructed, 
+                                                                Rule=correct$Rule, 
+                                                                Stimulation=correct$Stimulation, 
+                                                                Site=correct$Site,
+                                                                Subject=correct$Subject),
+                 mean)
+
+model <- aov(EncodingTime ~ (Instructed * Rule * Stimulation * Site) 
+             + Error(Subject/(Instructed * Rule * Stimulation * Site)), 
+             d)
+
+panderOptions("table.style", "rmarkdown")
+panderOptions('digits', 3)
+pander(model)
+```
+And one for the Response Time:
+
+```{r}
+model <- aov(EncodingTime ~ (Instructed * Rule * Stimulation * Site) 
+             + Error(Subject/(Instructed * Rule * Stimulation * Site)), 
+             d)
+
+panderOptions("table.style", "rmarkdown")
+panderOptions('digits', 3)
+pander(model)
+```
+
+Now a close look at the stimulation data, omitting the "No-Stimulation" trials.
+
+```{r}
+ds <- subset(d, d$Stimulation != "NoStimulation")
+
+model <- aov(ResponseTime ~ (Instructed * Stimulation * Rule * Site) 
+            + Error(Subject/(Instructed * Stimulation * Rule * Site)), 
+            ds)
+panderOptions("table.style", "rmarkdown")
+panderOptions('digits', 3)
+pander(model)
+
+```
+
+Here is the corresponding graph for the critical effect
+
+```{r}
+k1 <- subset(ds, ds$Stimulation == "Late" & ds$Instructed == "Inferred")
+ms <- tapply(k1$ResponseTime, list(k1$Site, k1$Rule), mean)
+ses <- tapply(k1$ResponseTime, list(k1$Site, k1$Rule), se)
+xs <- barplot(ms, beside = T, legend=T, 
+        ylim=c(0,2), main="Inferred Rules, Late Stimulation", border="white", col=c("grey65", "grey45"))
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90)
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90)
+
+# Adds some numbers
+text(x = xs, y = ms + ses + 0.05, labels = round(ms, 3))
+```
