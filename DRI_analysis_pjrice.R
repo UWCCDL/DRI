@@ -102,6 +102,8 @@ sp3 = ggplot(correct, aes(x=stimRT, y=ruleRT))
   +scale_y_continuous(breaks = round(seq(0,round(max(data$ruleRT))+1,by = 0.1),1))
   +theme(legend.position='bottom'))
 
+
+
 ###########################################################################################################################
 
 #distributions
