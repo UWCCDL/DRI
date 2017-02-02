@@ -1,4 +1,4 @@
-DRI_splots = function(sub,x,y,color='black',title='title',xlab='xlab',ylab='ylab')
+DRI_splots = function(sub,x,y,color='black',title='title',xlab='xlab',ylab='ylab') {
   
   #function to create scatterplots
   #sub is the subset of data you'd like to visualize
@@ -13,3 +13,5 @@ DRI_splots = function(sub,x,y,color='black',title='title',xlab='xlab',ylab='ylab
        +labs(title=title,x=xlab,y=ylab)
        +scale_x_continuous(breaks = round(seq(0,round(max(x))+1,by = 0.1),1))
        +scale_y_continuous(breaks = round(seq(0,round(max(y))+1,by = 0.1),1)))
+  
+}

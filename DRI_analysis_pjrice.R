@@ -2,6 +2,8 @@
 
 #load appropriate libraries
 library(ggplot2)
+library(gridExtra)
+library(GGally)
 
 #set wd to data dir
 setwd('/media/storage/testing_ground/R/RR_TMS_data')
@@ -27,6 +29,9 @@ data$ELN[data$ELN == 2] = "noStim"
 
 #convert subject IDs to factor
 data$subjID = as.factor(data$subjID)
+
+#replace "NaN"s with NA
+data[data == 'NaN'] = NA
 
 #add condition index column to data frame
 data$condIdx = interaction(data$SF,data$PV,data$ELN,data$infIns)
@@ -95,20 +100,103 @@ sp2 = ggplot(incorrect, aes(x=stimRT, y=ruleRT))
 
 #per subject ruleRT:stimRT, correct trials - color by trial condition
 #currently plots all subjects
-sp3 = ggplot(correct, aes(x=stimRT, y=ruleRT))
-(sp3+geom_point(aes(color=condIdx))
-  +labs(title='The relationship between ruleRT and stimRT, correct trials only',x = 'stimRT (s)', y = 'ruleRT (s)')
-  +scale_x_continuous(breaks = round(seq(0,round(max(data$stimRT))+1,by = 0.1),1))
-  +scale_y_continuous(breaks = round(seq(0,round(max(data$ruleRT))+1,by = 0.1),1))
-  +theme(legend.position='bottom'))
+
+#get unique subjIDs
+subjIDs = as.numeric(levels(data$subjID))
+#make empty list to put plots into
+subjsPlots = list()
+for (i in 1:length(subjIDs)){
+  
+  #get subject subsets
+  subjSubset = subset(correct, correct$subjID==subjIDs[i])
+  #make plots
+  subjsPlots[[i]] = (ggplot(subjSubset, aes(x=stimRT, y=ruleRT))
+                    +geom_point(aes(color=condIdx))
+                    +theme(legend.position='none')
+                    +scale_x_continuous(breaks = seq(0,5,by = 0.2))
+                    +scale_y_continuous(breaks = seq(0,5,by = 0.2))
+                    +labs(title=paste('Subject',toString(subjIDs[i])),x = 'stimRT (s)', y = 'ruleRT (s)'))
+  
+
+}
+
+#plot all 8
+do.call("grid.arrange", c(subjsPlots,ncol=2))
+
+#global scatterplot for the different conditions
+conds = levels(correct$condIdx)
+condsPlots = list()
+
+for (i in 1:length(levels(correct$condIdx))){
+  
+  #get cond subset
+  condSubset = subset(correct, correct$condIdx==conds[i])
+  #make plots
+  condsPlots[[i]] = (ggplot(condSubset, aes(x=stimRT, y=ruleRT))
+                    +geom_point(aes(color=subjID))
+                    +theme(legend.position='none')
+                    +scale_x_continuous(breaks = seq(0,5,by = 0.2))
+                    +scale_y_continuous(breaks = seq(0,5,by = 0.2))
+                    +labs(title=paste('Condition',conds[i]),x = 'stimRT (s)', y = 'ruleRT (s)'))
+  
+}
+
+# plot all
+do.call("grid.arrange", c(condsPlots,ncol=4))
 
 
 
 ###########################################################################################################################
 
-#distributions
+#histogram/density plots
+
+#global ruleRT hist w/ density
+hp1 = ggplot(correct, aes(x=ruleRT))
+(hp1+geom_histogram(binwidth = 0.1, aes(y = ..density..))
+    +geom_density()
+    +labs(title='ruleRTs',x = 'ruleRT (s)'))
+
+#global stimRT hist w/ density
+hp1 = ggplot(correct, aes(x=stimRT))
+(hp1+geom_histogram(binwidth = 0.1, aes(y = ..density..))
+  +geom_density()
+  +labs(title='stimRTs',x = 'stimRT (s)'))
+
+
+#per subject stimRT hists w/ densities
+subjhPlots = list()
+for (i in 1:length(subjIDs)){
+  
+  #get subject subsets
+  subjSubset = subset(correct, correct$subjID==subjIDs[i])
+  #make plots
+  subjhPlots[[i]] = (ggplot(subjSubset, aes(x=stimRT))
+                     +geom_histogram(binwidth = 0.1, aes(y = ..density..))
+                     +geom_density()
+                     +labs(title=paste('Subject',toString(subjIDs[i])),x = 'stimRT (s)'))
+  
+  
+}
+
+do.call("grid.arrange", c(subjhPlots,ncol=2))
+
+#plot all subject stimRT density estimates on top of one another
+ggplot(correct, aes(stimRT, fill = subjID)) +geom_density(alpha = 0.2)
+
+#plot all condition stimRT density estimates on top of one another
+ggplot(correct, aes(stimRT, fill = condIdx)) +geom_density(alpha = 0.2)
+
+###########################################################################################################################
+#condition mean bar graphs
 #bar means with bootstrapped CIs
 
+
+
+
+
+
+
+###########################################################################################################################
 
 #Controls tests
 #ns v. Vs
