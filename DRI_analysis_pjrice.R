@@ -29,6 +29,10 @@ data$ELN[data$ELN == 2] = "noStim"
 
 #convert subject IDs to factor
 data$subjID = as.factor(data$subjID)
+# data$SF = as.factor(data$SF)
+# data$PV = as.factor(data$PV)
+# data$ELN = as.factor(data$ELN)
+# data$infIns = as.factor(data$infIns)
 
 #replace "NaN"s with NA
 data[data == 'NaN'] = NA
@@ -115,7 +119,7 @@ for (i in 1:length(subjIDs)){
                     +theme(legend.position='none')
                     +scale_x_continuous(breaks = seq(0,5,by = 0.2))
                     +scale_y_continuous(breaks = seq(0,5,by = 0.2))
-                    +labs(title=paste('Subject',toString(subjIDs[i])),x = 'stimRT (s)', y = 'ruleRT (s)'))
+                    +labs(title=paste('Subject',toString(c('stimRT')subjIDs[i])),x = 'stimRT (s)', y = 'ruleRT (s)'))
   
 
 }
@@ -200,17 +204,95 @@ ggplot(correct, aes(stimRT, fill = condIdx)) +geom_density(alpha = 0.2)
 
 #Controls tests
 #ns v. Vs
+
+dCT1 = subset(correct, correct$PV=='Vertex' | (correct$PV=='PMd' & correct$ELN=='noStim'))
+
+dCT1$ELN[dCT1$ELN == 'Early'] = "Stim"
+dCT1$ELN[dCT1$ELN == 'Late'] = "Stim"
+
+dControlTest1.1 = aggregate(dCT1[c('stimRT')], by=list(subjID = dCT1$subjID,
+                                                       nsVs = dCT1$ELN),
+                            FUN=mean)
+summary(aov(stimRT ~ (nsVs) + Error(subjID), dControlTest1.1))
+
+
+
+
 #for stimRTs:
 #1. compare Vertex stimulation trials against PMd block no stimulation trials (to show Vstim is the same as not being stimulated over PMd)
 #2. PMd early stimulation trials against
+
+#get subset of all vertex trials and PMd nostim trials 
+dCT2 = subset(correct, correct$PV=='Vertex' | (correct$PV=='PMd' & correct$ELN=='noStim'))
+
+#get the means of the different conditions
+dControlTest2.1 = aggregate(dCT2[c('stimRT')], by=list(subjID = dCT2$subjID, 
+                                                       SF = dCT2$SF, 
+                                                       PV = dCT2$PV, 
+                                                       ELN = dCT2$ELN, 
+                                                       infIns = dCT2$infIns), 
+                            FUN=mean)
+
+#run the ANOVA
+#removed ELN from the error term here because I was getting a warning that the "Error() model is singular" - 
+#ELN only has one level for PMd trials in this case, while it has 3 for Vertex trials
+summary(aov(stimRT ~ (ELN * SF * PV * infIns) + Error(subjID/(SF * PV * infIns)), dControlTest2.1))
+
+#this one comes out "looking better"
+summary(aov(stimRT ~ (ELN * SF * PV * infIns) + Error(subjID), dControlTest2.1))
+
+#try collapsing across SF, infIns just to see
+dControlTest2.2 = aggregate(dCT2[c('stimRT')], by=list(subjID = dCT2$subjID, 
+                                                       PV = dCT2$PV, 
+                                                       ELN = dCT2$ELN), 
+                            FUN=mean)
+#no interaction because ELN is only one level for PMd in this case
+summary(aov(stimRT ~ (PV * ELN) + Error(subjID/PV), dControlTest2.2))
+
+summary(aov(stimRT ~ (PV * ELN) + Error(subjID), dControlTest2.2))
+
+#collapse across ELN too for funsicals
+dControlTest2.3 = aggregate(dCT2[c('stimRT')], by=list(subjID = dCT2$subjID, 
+                                                       PV = dCT2$PV), 
+                            FUN=mean)
+
+summary(aov(stimRT ~ (PV) + Error(subjID/PV), dControlTest2.3))
+
+#the same as the one above
+summary(aov(stimRT ~ (PV) + Error(subjID), dControlTest2.3))
+
 
 
 
 
 #StimRT
 #2way ANOVAs, drop nostim conds, 16 cond combos, 12 total 2ways
+
 #3ways (4 of them) 
 #4way
 
 
 #RuleRT do the same as stimRT
+
+
+###########################################################################################################################
+
+#Andrea's note
+
+#Symbol condition, early stim trials
+dT1 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Early')
+dTest1.1 = aggregate(dT1[c('stimRT')], by=list(subjID=dT1$subjID,
+                                               PV = dT1$PV,
+                                               infIns = dT1$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest1.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest1.1))
+
+#Finger condition, early stim trials
+
+#Symbol condition, late stim trials
+
+#Finger condition, late stim trials
+
+
+

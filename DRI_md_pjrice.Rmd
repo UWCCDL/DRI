@@ -246,10 +246,74 @@ ggplot(correct, aes(stimRT, fill = condIdx)) +geom_density(alpha = 0.2)+theme(le
 
 ```
 
+Because there are so many conditions, it's a little difficult to see what's going on. But, it seems as if there are at least 3 peaks. Let's try to justify dropping some conditions and checking out what the resultant graphs look like.
+
+First, let's compare all vertex stimulation trials to all no stimulation (both PMd and Vertex), to see if we can justify saying that being stimulated over Vertex was like not being stimulated at all:
+
+```{r ANOVA1}
+#ns v. Vs
+
+dCT1 = subset(correct, correct$PV=='Vertex' | (correct$PV=='PMd' & correct$ELN=='noStim'))
+
+dCT1$ELN[dCT1$ELN == 'Early'] = "Stim"
+dCT1$ELN[dCT1$ELN == 'Late'] = "Stim"
+
+dControlTest1.1 = aggregate(dCT1[c('stimRT')], by=list(subjID = dCT1$subjID,
+                                                       nsVs = dCT1$ELN),
+                            FUN=mean)
+summary(aov(stimRT ~ (nsVs) + Error(subjID), dControlTest1.1))
 
 
+```
+
+So, it seems as though being stimulated over Vertex is the same as not being stimulated at all.
+
+Second, let's compare all vertex trials to only PMd nostim trials, to see if we can justify saying that being stimulated over Vertex was like not being stimulated over PMd:
+```{r ANOVA2}
+
+#get subset of all vertex trials and PMd nostim trials 
+dCT2 = subset(correct, correct$PV=='Vertex' | (correct$PV=='PMd' & correct$ELN=='noStim'))
+
+#get the means of the different conditions
+dControlTest2.1 = aggregate(dCT2[c('stimRT')], by=list(subjID = dCT2$subjID, 
+                                                       SF = dCT2$SF, 
+                                                       PV = dCT2$PV, 
+                                                       ELN = dCT2$ELN, 
+                                                       infIns = dCT2$infIns), 
+                            FUN=mean)
+
+#run the ANOVA
+#removed ELN from the error term here because I was getting a warning that the "Error() model is singular" - 
+#ELN only has one level for PMd trials in this case, while it has 3 for Vertex trials
+summary(aov(stimRT ~ (ELN * SF * PV * infIns) + Error(subjID/(SF * PV * infIns)), dControlTest2.1))
+
+#this one comes out "looking better"
+summary(aov(stimRT ~ (ELN * SF * PV * infIns) + Error(subjID), dControlTest2.1))
+
+#try collapsing across SF, infIns just to see
+dControlTest2.2 = aggregate(dCT2[c('stimRT')], by=list(subjID = dCT2$subjID, 
+                                                       PV = dCT2$PV, 
+                                                       ELN = dCT2$ELN), 
+                            FUN=mean)
+#no interaction because ELN is only one level for PMd in this case
+summary(aov(stimRT ~ (PV * ELN) + Error(subjID/PV), dControlTest2.2))
+
+summary(aov(stimRT ~ (PV * ELN) + Error(subjID), dControlTest2.2))
+
+#collapse across ELN too for funsicals
+dControlTest2.3 = aggregate(dCT2[c('stimRT')], by=list(subjID = dCT2$subjID, 
+                                                       PV = dCT2$PV), 
+                            FUN=mean)
+
+summary(aov(stimRT ~ (PV) + Error(subjID/PV), dControlTest2.3))
+
+#the same as the one above
+summary(aov(stimRT ~ (PV) + Error(subjID), dControlTest2.3))
 
 
+```
+
+Well ain't that a fine howdy-do. We see that in the subset of all vertex trials and only PMd nostim trials, Sym/Fin and Inf/Ins are different, but E/L/N are not, and of special importance, P/V are not - so, participants behave similarly when stimulated over Vertex and when not stimulated over PMd.
 
 
 
