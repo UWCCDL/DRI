@@ -123,7 +123,41 @@ ruleRT = aggregate(data[c("ruleRT")], list(subjID=data$subjID,
 #aggregate stimRT data
 stimRT = aggregate(data[c("stimRT")], list(subjID=data$subjID,
                                              SF=data$SF,
-                                             PV=data$PV,
+                                             PV=data$PV,#Symbol condition, early stim trials
+dT1 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Early')
+dTest1.1 = aggregate(dT1[c('stimRT')], by=list(subjID=dT1$subjID,
+                                               PV = dT1$PV,
+                                               infIns = dT1$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest1.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest1.1))
+
+#Finger condition, early stim trials
+dT2 = subset(correct, correct$SF=='Finger' & correct$ELN=='Early')
+dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
+                                               PV = dT2$PV,
+                                               infIns = dT2$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest2.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest2.1))
+
+#Symbol condition, late stim trials
+dT3 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Late')
+dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
+                                               PV = dT3$PV,
+                                               infIns = dT3$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest3.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest3.1))
+
+#Finger condition, late stim trials
+dT4 = subset(correct, correct$SF=='Finger' & correct$ELN=='Late')
+dTest4.1 = aggregate(dT4[c('stimRT')], by=list(subjID=dT4$subjID,
+                                               PV = dT4$PV,
+                                               infIns = dT4$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest4.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest4.1))
                                              ELN=data$ELN,
                                              infIns=data$infIns),
                     mean)
@@ -223,7 +257,41 @@ do.call("grid.arrange", c(condPlots,ncol=4))
 
 How about some histograms with density estimates overlaid?
 
-```{r histograms}
+```{r histograms}#Symbol condition, early stim trials
+dT1 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Early')
+dTest1.1 = aggregate(dT1[c('stimRT')], by=list(subjID=dT1$subjID,
+                                               PV = dT1$PV,
+                                               infIns = dT1$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest1.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest1.1))
+
+#Finger condition, early stim trials
+dT2 = subset(correct, correct$SF=='Finger' & correct$ELN=='Early')
+dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
+                                               PV = dT2$PV,
+                                               infIns = dT2$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest2.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest2.1))
+
+#Symbol condition, late stim trials
+dT3 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Late')
+dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
+                                               PV = dT3$PV,
+                                               infIns = dT3$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest3.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest3.1))
+
+#Finger condition, late stim trials
+dT4 = subset(correct, correct$SF=='Finger' & correct$ELN=='Late')
+dTest4.1 = aggregate(dT4[c('stimRT')], by=list(subjID=dT4$subjID,
+                                               PV = dT4$PV,
+                                               infIns = dT4$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest4.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest4.1))
 #histogram/density plots
 
 #global ruleRT hist w/ density
@@ -315,9 +383,66 @@ summary(aov(stimRT ~ (PV) + Error(subjID), dControlTest2.3))
 
 Well ain't that a fine howdy-do. We see that in the subset of all vertex trials and only PMd nostim trials, Sym/Fin and Inf/Ins are different, but E/L/N are not, and of special importance, P/V are not - so, participants behave similarly when stimulated over Vertex and when not stimulated over PMd.
 
+Let's use these results as evidence that we can drop nostim trials from the analyses - being stimulated over vertex, either early or late, is like not being stimulated over either PMd or Vertex.
+
+So now we'll only consider PMd and Vertex trials in which they were stimulated early and late - Vertex serving as our control.
+
+We're going to split this set of trials into four sets by our Symbol/Finger and Early/Late conditions, so we can test for differences between PMd/Vertex and Inferred/Instructed within each of these sub-conditions.
+
+```{r testANOVAs}
+
+#Symbol condition, early stim trials
+dT1 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Early')
+dTest1.1 = aggregate(dT1[c('stimRT')], by=list(subjID=dT1$subjID,
+                                               PV = dT1$PV,
+                                               infIns = dT1$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest1.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest1.1))
+
+#Finger condition, early stim trials
+dT2 = subset(correct, correct$SF=='Finger' & correct$ELN=='Early')
+dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
+                                               PV = dT2$PV,
+                                               infIns = dT2$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest2.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest2.1))
+
+#Symbol condition, late stim trials
+dT3 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Late')
+dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
+                                               PV = dT3$PV,
+                                               infIns = dT3$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest3.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest3.1))
+
+#Finger condition, late stim trials
+dT4 = subset(correct, correct$SF=='Finger' & correct$ELN=='Late')
+dTest4.1 = aggregate(dT4[c('stimRT')], by=list(subjID=dT4$subjID,
+                                               PV = dT4$PV,
+                                               infIns = dT4$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest4.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest4.1))
+
+
+```
 
 
 
+These tests tell us a few things.
+
+The first, considering Symbol trials where subjects were stimulated early, shows that there is a main effect of Inferred/Instructed, but no effect of PMd/Vertex or an interaction between the two - implies that PMd is not involved at this time point (or that PMd and Vertex are equally involved).
+
+The second, considering Finger trials where subjects were stimulated early, shows that there is no significant effects, but infIns does tend towards significance - so, essentially the same conclusions as in the above test.
+
+The third, considering Symbol trials where subjects were stimulated late, shows that there is 1. (either a significant or trending towards significant) main effect of PMd/Vertex stimulation (so, subjects behaved differently when being stimulated over PMd, compared to Vertex); 2. A main effect of infIns again (as in previous two tests); and 3. a significant interaction between the two factors (so, participants behaved differently for PMd/Inf, PMd/Ins, Ver/Inf, Ver/Ins), implying that PMd is involved in this condition (or at least, differently involved than Vertex is). (Try making the classical "crossed line" graph to show this interaction)
+
+The fourth, considering Finger trials where subjects were stimulated late, shows that there are no main effects or interactions (although again, there is a trend towards significance for infIns in the second type of ANOVA I run).
+
+Make some bar plots to demonstrate the means being tested in these ANOVAs, (aggregate the aggregate) as well as the "crossed line" interaction plot mentioned above.
 
 
 

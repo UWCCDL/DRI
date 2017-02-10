@@ -289,10 +289,30 @@ summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest1.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest1.1))
 
 #Finger condition, early stim trials
+dT2 = subset(correct, correct$SF=='Finger' & correct$ELN=='Early')
+dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
+                                               PV = dT2$PV,
+                                               infIns = dT2$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest2.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest2.1))
 
 #Symbol condition, late stim trials
+dT3 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Late')
+dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
+                                               PV = dT3$PV,
+                                               infIns = dT3$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest3.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest3.1))
 
 #Finger condition, late stim trials
-
+dT4 = subset(correct, correct$SF=='Finger' & correct$ELN=='Late')
+dTest4.1 = aggregate(dT4[c('stimRT')], by=list(subjID=dT4$subjID,
+                                               PV = dT4$PV,
+                                               infIns = dT4$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest4.1))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest4.1))
 
 
