@@ -9,7 +9,7 @@ library(ggplot2)
 setwd('/media/storage/testing_ground/R/RR_TMS_data')
 
 #win path
-setwd('C:\\Users\\ausma_000\\Desktop')
+# setwd('C:\\Users\\ausma_000\\Desktop')
 
 #read data file
 data = read.table('table4R.txt', header=T, sep=",")
@@ -122,7 +122,7 @@ for (i in 1:length(subjIDs)){
                     +theme(legend.position='none')
                     +scale_x_continuous(breaks = seq(0,5,by = 0.2))
                     +scale_y_continuous(breaks = seq(0,5,by = 0.2))
-                    +labs(title=paste('Subject',toString(c('stimRT')subjIDs[i])),x = 'stimRT (s)', y = 'ruleRT (s)'))
+                    +labs(title=paste('Subject',toString(c('stimRT'),subjIDs[i])),x = 'stimRT (s)', y = 'ruleRT (s)'))
   
 
 }
@@ -273,30 +273,106 @@ summary(aov(stimRT ~ (PV) + Error(subjID), dControlTest2.3))
 #SF/PV/EL/InfIns
 
 #***NEED TO GET SUBSET WITH ONLY E AND L TRIALS***
-
+d2.3ways = subset(correct, correct$ELN=='Early' | correct$ELN=='Late')
 #1.SF/PV
-d2ways.1 = aggregate(correct[c('stimRT')], by=list(subjID=correct$subjID,
-                                                    SF = correct$SF,
-                                                    PV = correct$PV),
+d2ways.1 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    SF = d2.3ways$SF,
+                                                    PV = d2.3ways$PV),
                       FUN=mean)
 summary(aov(stimRT ~ (SF*PV)+Error(subjID/(SF*PV)),d2ways.1))
 summary(aov(stimRT ~ (SF*PV)+Error(subjID),d2ways.1))
+
 #2.SF/EL
-d2ways.2 = aggregate(correct[c('stimRT')], by=list(subjID=correct$subjID,
-                                                   SF = correct$SF,
-                                                   EL = correct$ELN),
+d2ways.2 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                   SF = d2.3ways$SF,
+                                                   EL = d2.3ways$ELN),
                      FUN=mean)
-summary(aov(stimRT ~ (SF*PV)+Error(subjID/(SF*PV)),d2ways.1))
-summary(aov(stimRT ~ (SF*PV)+Error(subjID),d2ways.1))
+summary(aov(stimRT ~ (SF*EL)+Error(subjID/(SF*EL)),d2ways.2))
+summary(aov(stimRT ~ (SF*EL)+Error(subjID),d2ways.2))
+
 #3.SF/InfIns
+d2ways.3 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    SF = d2.3ways$SF,
+                                                    infIns = d2.3ways$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (SF*infIns)+Error(subjID/(SF*infIns)),d2ways.3))
+summary(aov(stimRT ~ (SF*infIns)+Error(subjID),d2ways.3))
+
 #4.PV/EL
+d2ways.4 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    PV = d2.3ways$PV,
+                                                    EL = d2.3ways$ELN),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*EL)+Error(subjID/(PV*EL)),d2ways.4))
+summary(aov(stimRT ~ (PV*EL)+Error(subjID),d2ways.4))
+
 #5.PV/InfIns
+d2ways.5 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    PV = d2.3ways$PV,
+                                                    infIns = d2.3ways$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),d2ways.5))
+summary(aov(stimRT ~ (PV*infIns)+Error(subjID),d2ways.5))
+
 #6.EL/InfIns
+d2ways.6 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    EL = d2.3ways$ELN,
+                                                    infIns = d2.3ways$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (EL*infIns)+Error(subjID/(EL*infIns)),d2ways.6))
+summary(aov(stimRT ~ (EL*infIns)+Error(subjID),d2ways.6))
 
 
+#3ways (4 of them)
+#SF/PV/EL/InfIns
+#SF/PV/EL
+d3ways.1 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    SF = d2.3ways$SF,
+                                                    PV = d2.3ways$PV,
+                                                    EL = d2.3ways$ELN),
+                     FUN=mean)
+summary(aov(stimRT ~ (SF*PV*EL)+Error(subjID/(SF*PV*EL)),d3ways.1))
+summary(aov(stimRT ~ (SF*PV*EL)+Error(subjID),d3ways.1))
 
-#3ways (4 of them) 
+#SF/PV/InfIns
+d3ways.2 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    SF = d2.3ways$SF,
+                                                    PV = d2.3ways$PV,
+                                                    infIns = d2.3ways$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (SF*PV*infIns)+Error(subjID/(SF*PV*infIns)),d3ways.2))
+summary(aov(stimRT ~ (SF*PV*infIns)+Error(subjID),d3ways.2))
+
+#SF/EL/InfIns
+d3ways.3 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    SF = d2.3ways$SF,
+                                                    EL = d2.3ways$ELN,
+                                                    infIns = d2.3ways$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (SF*EL*infIns)+Error(subjID/(SF*EL*infIns)),d3ways.3))
+summary(aov(stimRT ~ (SF*EL*infIns)+Error(subjID),d3ways.3))
+
+
+#PV/EL/InfIns
+d3ways.4 = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                    PV = d2.3ways$PV,
+                                                    EL = d2.3ways$ELN,
+                                                    infIns = d2.3ways$infIns),
+                     FUN=mean)
+summary(aov(stimRT ~ (PV*EL*infIns)+Error(subjID/(PV*EL*infIns)),d3ways.4))
+summary(aov(stimRT ~ (PV*EL*infIns)+Error(subjID),d3ways.4))
+
 #4way
+#SF/PV/EL/InfIns
+d4way = aggregate(d2.3ways[c('stimRT')], by=list(subjID=d2.3ways$subjID,
+                                                 SF = d2.3ways$SF,
+                                                 PV = d2.3ways$PV,
+                                                 EL = d2.3ways$ELN,
+                                                 infIns = d2.3ways$infIns),
+                  FUN=mean)
+summary(aov(stimRT ~ (SF*PV*EL*infIns)+Error(subjID/(SF*PV*EL*infIns)),d4way))
+summary(aov(stimRT ~ (SF*PV*EL*infIns)+Error(subjID),d4way))
+
 
 
 #RuleRT do the same as stimRT
