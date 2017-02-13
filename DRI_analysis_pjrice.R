@@ -2,11 +2,14 @@
 
 #load appropriate libraries
 library(ggplot2)
-library(gridExtra)
-library(GGally)
+# library(gridExtra)
+# library(GGally)
 
 #set wd to data dir
 setwd('/media/storage/testing_ground/R/RR_TMS_data')
+
+#win path
+setwd('C:\\Users\\ausma_000\\Desktop')
 
 #read data file
 data = read.table('table4R.txt', header=T, sep=",")
@@ -266,7 +269,31 @@ summary(aov(stimRT ~ (PV) + Error(subjID), dControlTest2.3))
 
 
 #StimRT
-#2way ANOVAs, drop nostim conds, 16 cond combos, 12 total 2ways
+#2way ANOVAs, drop nostim conds, 6 total 2ways
+#SF/PV/EL/InfIns
+
+#***NEED TO GET SUBSET WITH ONLY E AND L TRIALS***
+
+#1.SF/PV
+d2ways.1 = aggregate(correct[c('stimRT')], by=list(subjID=correct$subjID,
+                                                    SF = correct$SF,
+                                                    PV = correct$PV),
+                      FUN=mean)
+summary(aov(stimRT ~ (SF*PV)+Error(subjID/(SF*PV)),d2ways.1))
+summary(aov(stimRT ~ (SF*PV)+Error(subjID),d2ways.1))
+#2.SF/EL
+d2ways.2 = aggregate(correct[c('stimRT')], by=list(subjID=correct$subjID,
+                                                   SF = correct$SF,
+                                                   EL = correct$ELN),
+                     FUN=mean)
+summary(aov(stimRT ~ (SF*PV)+Error(subjID/(SF*PV)),d2ways.1))
+summary(aov(stimRT ~ (SF*PV)+Error(subjID),d2ways.1))
+#3.SF/InfIns
+#4.PV/EL
+#5.PV/InfIns
+#6.EL/InfIns
+
+
 
 #3ways (4 of them) 
 #4way
