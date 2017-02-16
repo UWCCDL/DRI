@@ -2,6 +2,7 @@
 
 #load appropriate libraries
 library(ggplot2)
+library(grid)
 # library(gridExtra)
 # library(GGally)
 
@@ -46,7 +47,7 @@ data$condIdx = interaction(data$SF,data$PV,data$ELN,data$infIns)
 ###########################################################################################################################
 
 #remove subj 2406 first block (NaNed out) and other random trials where subj didn't respond
-data = subset(data, data$PV!="NaN" & data$ruleRT!="NaN" & data$stimRT!="NaN")
+data = subset(data, !is.na(data$ruleRT) & !is.na(data$PV) & !is.na(data$stimRT))
 
 #get subset of only correct trials
 correct = subset(data, data$success==1)
@@ -430,8 +431,21 @@ dT1.bp = aggregate(dTest1.1[c('stimRT')], by=list(PV=dTest1.1$PV,
 
 
 dT1bplot = ggplot(dT1.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
-p1 = (dT1bplot+geom_bar(position='dodge',stat='identity')
-  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position='dodge'))
+
+#make p1 plot and grab the legend - test to see how little of the plot you have to make before you lose legend
+p1 = (dT1bplot+geom_bar(position=position_dodge(),stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25))
+#gets just the legend for a given plot, in this case p1
+tmp = ggplot_gtable(ggplot_build(p1)) 
+leg = which(sapply(tmp$grobs, function(x) x$name) == "guide-box") 
+legend = tmp$grobs[[leg]] 
+
+#clear p1 and remake without legend
+rm(p1)
+p1 = (dT1bplot+geom_bar(position=position_dodge(),stat='identity')
+      +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25)
+      +theme(legend.position='none'))
+
 
 #Finger condition, early stim trials barplot
 dT2.bp = aggregate(dTest2.1[c('stimRT')], by=list(PV=dTest2.1$PV,
@@ -440,8 +454,9 @@ dT2.bp = aggregate(dTest2.1[c('stimRT')], by=list(PV=dTest2.1$PV,
 
 
 dT2bplot = ggplot(dT2.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
-p2 = (dT2bplot+geom_bar(position='dodge',stat='identity')
-  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position='dodge'))
+p2 = (dT2bplot+geom_bar(position=position_dodge(),stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25)
+  +theme(legend.position='none'))
 
 #Symbol condition, late stim trials barplot
 dT3.bp = aggregate(dTest3.1[c('stimRT')], by=list(PV=dTest3.1$PV,
@@ -450,8 +465,9 @@ dT3.bp = aggregate(dTest3.1[c('stimRT')], by=list(PV=dTest3.1$PV,
 
 
 dT3bplot = ggplot(dT3.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
-p3 = (dT3bplot+geom_bar(position='dodge',stat='identity')
-  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position='dodge'))
+p3 = (dT3bplot+geom_bar(position=position_dodge(),stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25)
+  +theme(legend.position='none'))
 
 #Finger condition, late stim trials barplot
 dT4.bp = aggregate(dTest4.1[c('stimRT')], by=list(PV=dTest4.1$PV,
@@ -460,10 +476,11 @@ dT4.bp = aggregate(dTest4.1[c('stimRT')], by=list(PV=dTest4.1$PV,
 
 
 dT4bplot = ggplot(dT4.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
-p4 = (dT4bplot+geom_bar(position='dodge',stat='identity')
-  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position='dodge'))
+p4 = (dT4bplot+geom_bar(position=position_dodge(),stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25)
+  +theme(legend.position='none'))
 
-bplots = list(p1,p2,p3,p4)
+bplots = list(p1,p2,p3,p4,legend)
 do.call("grid.arrange", c(bplots,ncol=2))
 
 ###########################################################################################################################

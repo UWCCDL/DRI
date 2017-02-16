@@ -90,7 +90,7 @@ While we're at it, let's make a subset of correct trials and a subset of incorre
 ```{r NaNs}
 
 #remove subj 2406 first block (NaNed out) and other random trials where subj didn't respond
-data = subset(data, data$PV!="NaN" & data$ruleRT!="NaN" & data$stimRT!="NaN")
+data = subset(data, !is.na(data$ruleRT) & !is.na(data$PV) & !is.na(data$stimRT))
 
 #get subset of only correct trials
 correct = subset(data, data$success==1)
@@ -123,44 +123,10 @@ ruleRT = aggregate(data[c("ruleRT")], list(subjID=data$subjID,
 #aggregate stimRT data
 stimRT = aggregate(data[c("stimRT")], list(subjID=data$subjID,
                                              SF=data$SF,
-                                             PV=data$PV,#Symbol condition, early stim trials
-dT1 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Early')
-dTest1.1 = aggregate(dT1[c('stimRT')], by=list(subjID=dT1$subjID,
-                                               PV = dT1$PV,
-                                               infIns = dT1$infIns),
-                     FUN=mean)
-summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest1.1))
-summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest1.1))
-
-#Finger condition, early stim trials
-dT2 = subset(correct, correct$SF=='Finger' & correct$ELN=='Early')
-dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
-                                               PV = dT2$PV,
-                                               infIns = dT2$infIns),
-                     FUN=mean)
-summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest2.1))
-summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest2.1))
-
-#Symbol condition, late stim trials
-dT3 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Late')
-dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
-                                               PV = dT3$PV,
-                                               infIns = dT3$infIns),
-                     FUN=mean)
-summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest3.1))
-summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest3.1))
-
-#Finger condition, late stim trials
-dT4 = subset(correct, correct$SF=='Finger' & correct$ELN=='Late')
-dTest4.1 = aggregate(dT4[c('stimRT')], by=list(subjID=dT4$subjID,
-                                               PV = dT4$PV,
-                                               infIns = dT4$infIns),
-                     FUN=mean)
-summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest4.1))
-summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest4.1))
+                                             PV=data$PV,
                                              ELN=data$ELN,
                                              infIns=data$infIns),
-                    mean)
+                   mean)
 
 kable(head(success))
 kable(head(ruleRT))
@@ -257,7 +223,8 @@ do.call("grid.arrange", c(condPlots,ncol=4))
 
 How about some histograms with density estimates overlaid?
 
-```{r histograms}#Symbol condition, early stim trials
+```{r histograms}
+#Symbol condition, early stim trials
 dT1 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Early')
 dTest1.1 = aggregate(dT1[c('stimRT')], by=list(subjID=dT1$subjID,
                                                PV = dT1$PV,
@@ -389,7 +356,7 @@ So now we'll only consider PMd and Vertex trials in which they were stimulated e
 
 We're going to split this set of trials into four sets by our Symbol/Finger and Early/Late conditions, so we can test for differences between PMd/Vertex and Inferred/Instructed within each of these sub-conditions.
 
-```{r testANOVAs}
+```{r testANOVA1}
 
 #Symbol condition, early stim trials
 dT1 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Early')
@@ -400,6 +367,15 @@ dTest1.1 = aggregate(dT1[c('stimRT')], by=list(subjID=dT1$subjID,
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest1.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest1.1))
 
+
+```
+
+These tests tell us a few things.
+
+The first, considering Symbol trials where subjects were stimulated early, shows that there is a main effect of Inferred/Instructed, but no effect of PMd/Vertex or an interaction between the two - implies that PMd is not involved at this time point (or that PMd and Vertex are equally involved).
+
+```{r testANOVA2}
+
 #Finger condition, early stim trials
 dT2 = subset(correct, correct$SF=='Finger' & correct$ELN=='Early')
 dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
@@ -408,6 +384,11 @@ dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
                      FUN=mean)
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest2.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest2.1))
+```
+
+The second, considering Finger trials where subjects were stimulated early, shows that there is no significant effects, but infIns does tend towards significance - so, essentially the same conclusions as in the above test.
+
+```{r testANOVA3}
 
 #Symbol condition, late stim trials
 dT3 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Late')
@@ -417,7 +398,11 @@ dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
                      FUN=mean)
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest3.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest3.1))
+```
 
+The third, considering Symbol trials where subjects were stimulated late, shows that there is 1. (either a significant or trending towards significant) main effect of PMd/Vertex stimulation (so, subjects behaved differently when being stimulated over PMd, compared to Vertex); 2. A main effect of infIns again (as in previous two tests); and 3. a significant interaction between the two factors (so, participants behaved differently for PMd/Inf, PMd/Ins, Ver/Inf, Ver/Ins), implying that PMd is involved in this condition (or at least, differently involved than Vertex is). (Try making the classical "crossed line" graph to show this interaction)
+
+```{r testANOVA4}
 #Finger condition, late stim trials
 dT4 = subset(correct, correct$SF=='Finger' & correct$ELN=='Late')
 dTest4.1 = aggregate(dT4[c('stimRT')], by=list(subjID=dT4$subjID,
@@ -430,23 +415,69 @@ summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest4.1))
 
 ```
 
-
-
-These tests tell us a few things.
-
-The first, considering Symbol trials where subjects were stimulated early, shows that there is a main effect of Inferred/Instructed, but no effect of PMd/Vertex or an interaction between the two - implies that PMd is not involved at this time point (or that PMd and Vertex are equally involved).
-
-The second, considering Finger trials where subjects were stimulated early, shows that there is no significant effects, but infIns does tend towards significance - so, essentially the same conclusions as in the above test.
-
-The third, considering Symbol trials where subjects were stimulated late, shows that there is 1. (either a significant or trending towards significant) main effect of PMd/Vertex stimulation (so, subjects behaved differently when being stimulated over PMd, compared to Vertex); 2. A main effect of infIns again (as in previous two tests); and 3. a significant interaction between the two factors (so, participants behaved differently for PMd/Inf, PMd/Ins, Ver/Inf, Ver/Ins), implying that PMd is involved in this condition (or at least, differently involved than Vertex is). (Try making the classical "crossed line" graph to show this interaction)
-
 The fourth, considering Finger trials where subjects were stimulated late, shows that there are no main effects or interactions (although again, there is a trend towards significance for infIns in the second type of ANOVA I run).
 
-Make some bar plots to demonstrate the means being tested in these ANOVAs, (aggregate the aggregate) as well as the "crossed line" interaction plot mentioned above.
+```{r barplots}
+
+#Symbol condition, early stim trials barplot
+dT1.bp = aggregate(dTest1.1[c('stimRT')], by=list(PV=dTest1.1$PV,
+                                                  infIns = dTest1.1$infIns),
+                   FUN=function(x) c(mn = mean(x), sem = (sd(x)/sqrt(length(unique(dTest1.1$subjID))))))
 
 
+dT1bplot = ggplot(dT1.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
+
+#make p1 plot and grab the legend - test to see how little of the plot you have to make before you lose legend
+p1 = (dT1bplot+geom_bar(position=position_dodge(),stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25))
+#gets just the legend for a given plot, in this case p1
+tmp = ggplot_gtable(ggplot_build(p1)) 
+leg = which(sapply(tmp$grobs, function(x) x$name) == "guide-box") 
+legend = tmp$grobs[[leg]] 
+
+#clear p1 and remake without legend
+rm(p1)
+p1 = (dT1bplot+geom_bar(position=position_dodge(),stat='identity')
+      +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25)
+      +theme(legend.position='none'))
 
 
+#Finger condition, early stim trials barplot
+dT2.bp = aggregate(dTest2.1[c('stimRT')], by=list(PV=dTest2.1$PV,
+                                                  infIns = dTest2.1$infIns),
+                   FUN=function(x) c(mn = mean(x), sem = (sd(x)/sqrt(length(unique(dTest2.1$subjID))))))
+
+
+dT2bplot = ggplot(dT2.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
+p2 = (dT2bplot+geom_bar(position=position_dodge(),stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25)
+  +theme(legend.position='none'))
+
+#Symbol condition, late stim trials barplot
+dT3.bp = aggregate(dTest3.1[c('stimRT')], by=list(PV=dTest3.1$PV,
+                                                  infIns = dTest3.1$infIns),
+                   FUN=function(x) c(mn = mean(x), sem = (sd(x)/sqrt(length(unique(dTest3.1$subjID))))))
+
+
+dT3bplot = ggplot(dT3.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
+p3 = (dT3bplot+geom_bar(position=position_dodge(),stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25)
+  +theme(legend.position='none'))
+
+#Finger condition, late stim trials barplot
+dT4.bp = aggregate(dTest4.1[c('stimRT')], by=list(PV=dTest4.1$PV,
+                                                  infIns = dTest4.1$infIns),
+                   FUN=function(x) c(mn = mean(x), sem = (sd(x)/sqrt(length(unique(dTest4.1$subjID))))))
+
+
+dT4bplot = ggplot(dT4.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
+p4 = (dT4bplot+geom_bar(position=position_dodge(),stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position=position_dodge(.9), width=0.25)
+  +theme(legend.position='none'))
+
+bplots = list(p1,p2,p3,p4,legend)
+do.call("grid.arrange", c(bplots,ncol=2))
+```
 
 
 
