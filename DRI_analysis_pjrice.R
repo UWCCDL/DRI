@@ -9,7 +9,7 @@ library(ggplot2)
 setwd('/media/storage/testing_ground/R/RR_TMS_data')
 
 #win path
-# setwd('C:\\Users\\ausma_000\\Desktop')
+setwd('C:\\Users\\ausma_000\\Desktop')
 
 #read data file
 data = read.table('table4R.txt', header=T, sep=",")
@@ -400,6 +400,14 @@ dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest2.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest2.1))
 
+##barplot
+
+tester1 = aggregate(dTest2.1[c('stimRT')], by=list(PV=dTest2.1$PV,
+                                                   infIns = dTest2.1$infIns),
+                   FUN=mean)
+t1plot = ggplot(tester1, aes(fill=PV,y=stimRT,x=infIns))
+t1plot+geom_bar(position='dodge',stat='identity')
+
 #Symbol condition, late stim trials
 dT3 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Late')
 dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
@@ -408,6 +416,10 @@ dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
                      FUN=mean)
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest3.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest3.1))
+
+### Sym, Late barplot
+tester = aggregate(dTest3.1[c('stimRT')], by=list(subjID=dTest3.1$subjID),
+                   FUN=mean)
 
 #Finger condition, late stim trials
 dT4 = subset(correct, correct$SF=='Finger' & correct$ELN=='Late')
