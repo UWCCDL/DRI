@@ -400,14 +400,6 @@ dTest2.1 = aggregate(dT2[c('stimRT')], by=list(subjID=dT2$subjID,
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest2.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest2.1))
 
-##barplot
-
-tester1 = aggregate(dTest2.1[c('stimRT')], by=list(PV=dTest2.1$PV,
-                                                   infIns = dTest2.1$infIns),
-                   FUN=mean)
-t1plot = ggplot(tester1, aes(fill=PV,y=stimRT,x=infIns))
-t1plot+geom_bar(position='dodge',stat='identity')
-
 #Symbol condition, late stim trials
 dT3 = subset(correct, correct$SF=='Symbol' & correct$ELN=='Late')
 dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
@@ -416,10 +408,6 @@ dTest3.1 = aggregate(dT3[c('stimRT')], by=list(subjID=dT3$subjID,
                      FUN=mean)
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest3.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest3.1))
-
-### Sym, Late barplot
-tester = aggregate(dTest3.1[c('stimRT')], by=list(subjID=dTest3.1$subjID),
-                   FUN=mean)
 
 #Finger condition, late stim trials
 dT4 = subset(correct, correct$SF=='Finger' & correct$ELN=='Late')
@@ -430,4 +418,58 @@ dTest4.1 = aggregate(dT4[c('stimRT')], by=list(subjID=dT4$subjID,
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID/(PV*infIns)),dTest4.1))
 summary(aov(stimRT ~ (PV*infIns)+Error(subjID),dTest4.1))
 
+
+###########################################################################################################################
+
+#barplots of "Andrea note" comparisons done above
+
+#Symbol condition, early stim trials barplot
+dT1.bp = aggregate(dTest1.1[c('stimRT')], by=list(PV=dTest1.1$PV,
+                                                  infIns = dTest1.1$infIns),
+                   FUN=function(x) c(mn = mean(x), sem = (sd(x)/sqrt(length(unique(dTest1.1$subjID))))))
+
+
+dT1bplot = ggplot(dT1.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
+p1 = (dT1bplot+geom_bar(position='dodge',stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position='dodge'))
+
+#Finger condition, early stim trials barplot
+dT2.bp = aggregate(dTest2.1[c('stimRT')], by=list(PV=dTest2.1$PV,
+                                                  infIns = dTest2.1$infIns),
+                   FUN=function(x) c(mn = mean(x), sem = (sd(x)/sqrt(length(unique(dTest2.1$subjID))))))
+
+
+dT2bplot = ggplot(dT2.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
+p2 = (dT2bplot+geom_bar(position='dodge',stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position='dodge'))
+
+#Symbol condition, late stim trials barplot
+dT3.bp = aggregate(dTest3.1[c('stimRT')], by=list(PV=dTest3.1$PV,
+                                                  infIns = dTest3.1$infIns),
+                   FUN=function(x) c(mn = mean(x), sem = (sd(x)/sqrt(length(unique(dTest3.1$subjID))))))
+
+
+dT3bplot = ggplot(dT3.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
+p3 = (dT3bplot+geom_bar(position='dodge',stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position='dodge'))
+
+#Finger condition, late stim trials barplot
+dT4.bp = aggregate(dTest4.1[c('stimRT')], by=list(PV=dTest4.1$PV,
+                                                  infIns = dTest4.1$infIns),
+                   FUN=function(x) c(mn = mean(x), sem = (sd(x)/sqrt(length(unique(dTest4.1$subjID))))))
+
+
+dT4bplot = ggplot(dT4.bp, aes(fill=infIns,y=stimRT[,1],x=PV))
+p4 = (dT4bplot+geom_bar(position='dodge',stat='identity')
+  +geom_errorbar(aes(ymax = stimRT[,1]+stimRT[,2], ymin=stimRT[,1]-stimRT[,2]), position='dodge'))
+
+bplots = list(p1,p2,p3,p4)
+do.call("grid.arrange", c(bplots,ncol=2))
+
+###########################################################################################################################
+
+#try interaction line plot?
+#symbol late
+(ggplot(dT3.bp, aes(color=infIns,y=stimRT[,1],x=PV))
+ +geom_point()+geom_line(aes(group=infIns)))
 
