@@ -160,19 +160,33 @@ jagsModel = jags.model( "DRI_bayes_m1.txt",
 cat( "Burning in the MCMC chain...\n" )
 update( jagsModel, n.iter = burnInSteps )
 
-#sample the posterior
-mcmc.out = list()
-for (i in 1:2) {
-  cat( "Sampling final MCMC chains for i =", i, 
-       ", and n.iter =", nIter[i], ".\n\n" )
-  
-  mcmc.out[i] = coda.samples(jagsModel, 
-                              variable.names = parameters, 
-                              n.iter = nIter[i], 
-                              thin = thinSteps)
-}
+# #sample the posterior
+# mcmc.out = list()
+# for (i in 1:2) {
+#   cat( "Sampling final MCMC chains for i =", i, 
+#        ", and n.iter =", nIter[i], ".\n\n" )
+#   
+#   mcmc.out[i] = coda.samples(jagsModel, 
+#                               variable.names = parameters, 
+#                               n.iter = nIter[i], 
+#                               thin = thinSteps)
+# } #figure out the warning this throws
+
+mcmc.out = coda.samples(jagsModel, 
+                           variable.names = parameters, 
+                           n.iter = nIter[2], 
+                           thin = thinSteps)
+
+mcmc.mat = as.matrix(mcmc.out)
+mcmc.df = as.data.frame(mcmc.mat)
 
 
+source("/home/patrick/Dropbox/Documents/2017/Winter Quarter/Psych 548/Materials/Week7/Wed/kruschke_r/DBDA2E-utilities.R")
+attach( "/home/patrick/Dropbox/Documents/2017/Winter Quarter/Psych 548/Materials/Week7/Wed/jmfuns.rda", pos = 2)
+
+
+res.param(samples=mcmc.df$`omega[1]`,plot.dist=TRUE,show.conf=TRUE)
+plotPost(mcmc.df$`omega[1]`, credMass=0.95)
 
 ###########################################################################################################################
 
