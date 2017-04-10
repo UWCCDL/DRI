@@ -22,7 +22,7 @@ First, we should probably set the working directory and load the data, right?
 
 ```{r load da data}
 #set wd to data dir
-setwd('/media/storage/testing_ground/R/RR_TMS_data')
+setwd('/home/patrick/Desktop')
 
 #read data file
 data = read.table('table4R.txt', header=T, sep=",")
