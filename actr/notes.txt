@@ -1,0 +1,10 @@
+DRI Experiment Model
+====================
+
+The general algorithm is like this:
+
+1. Encode rule as a pair ("Odd/Left/Nolook" or "Odd/A/Look")
+
+2. Proceed
+
+3.
