@@ -1,6 +1,6 @@
 library(Rmisc)
 library(matlab)
-library(pwr)
+#library(pwr)
 source("functions.R")
 data <- read.table("andrea_data.csv", header=T, sep=",")
 
