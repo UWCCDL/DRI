@@ -1,0 +1,27 @@
+DRI Experiment Model
+====================
+
+The general algorithm is like this:
+
+1. Encoding phase
+   1.1 Encode rule as a pair ("Odd/Left/Nosearch" or "Odd/A/Search")
+   1.2 Proceed
+
+2. Execution phase
+   2.1 Encode number
+   2.2 Decide whether even or odd
+   2.3 Check whether parity matches encoded rule
+   
+   2.4 If it matches:
+   2.4.1 If it the modality is Nosearch, press hand.
+   2.4.2 If the answer is "Search", lookf for Letter
+   2.4.2 If you have found letter, and parity matches, press the
+   button
+
+   2.5 If it does not match
+   2.5.1 If the modality is Nosearch, press the other hand
+   2.5.2 If the modality is Search, look 
+
+
+
+
