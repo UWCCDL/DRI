@@ -21,6 +21,12 @@
   (and (fboundp 'run-n-events)
        (fboundp 'start-environment)))
 
+(defun dri-reload ()
+  (reload)
+  (install-device (make-instance 'dri-task))
+  (init (current-device))
+  (proc-display))
+
 ;; ---------------------------------------------------------------- ;;
 ;; Some utilities
 ;; ---------------------------------------------------------------- ;;
@@ -141,7 +147,7 @@
 
 (defparameter *response-mappings* '((0 . index) (1 . middle)))
 
-(defparameter *key-finger-mappings* '(("j" . index) ("k" . middle))
+(defparameter *key-finger-mappings* '((#\j . index) (#\k . middle))
   "Key/Finger mappings")
 
 (defun stimulus-correct-response (stim rule)
@@ -318,21 +324,24 @@
     (let* ((trial (current-trial task))
 	   (phase (task-phase task))
 	   (response (cdr (assoc key *key-finger-mappings*))))
-      
-      (cond ((equal 'phase stimulus)
+      (format t "Oila~%")
+      (cond ((equal phase 'stimulus)
 	     
-	     (set-trial-stimulus-response trial response)
+	     (set-trial-actual-response trial response)
 	     (when (act-r-loaded?)
 	       (set-trial-response-time (current-trial task)
 					(mp-time))
 	       (if (= 1 (trial-accuracy (current-trial task)))
 		   (trigger-reward 1)
 		   (trigger-reward -1))
-	       (schedule-event-relative 0 #'next :params (list task))))))
+	       (schedule-event-relative 0 #'next :params (list task))))
+	    ((equal phase 'rule)
+	     (when (act-r-loaded?)
+	       (schedule-event-relative 0 #'next :params (list task))))))))
             
 
 (defmethod next ((task dri-task))
-  "Moves to the next step in a Simon Task timeline"
+  "Moves to the next step in a DRI timeline"
   (cond ((equal (task-phase task) 'rule)
 	 (setf (task-phase task) 'stimulus)
 	 (when (act-r-loaded?)
@@ -368,7 +377,8 @@
 
 (defmethod device-handle-keypress ((task dri-task) key)
   "Converts the key into a symbol and passes it on to the task manager"
-  (respond task (intern (string-capitalize (format nil "~a" key)))))
+  ;;(respond task (intern (string-capitalize (format nil "~a" key)))))
+  (respond task key))
 
 			   
 (defmethod device-handle-click ((task dri-task))
@@ -391,49 +401,99 @@
   (declare (ignore task))
   nil)
 
+(defparameter *screen-width* 400)
+
+(defparameter *screen-height* 300)
+
+(defparameter *char-width* 20)
+
+(defparameter *char-height* 20)
+
+(defun symbol-length (sym)
+  (when (symbolp sym)
+    (length (format nil "~A" sym))))
+
 (defmethod build-vis-locs-for ((task dri-task) vismod)
-  (if (equalp (task-phase task) 'stimulus)
-      (build-vis-locs-for (trial-stimulus (current-trial task))
-			  vismod)
-      (build-vis-locs-for (task-phase task)
-			  vismod)))
+  (let ((results nil)
+	(phase (task-phase task)))
+    (cond ((equalp (task-phase task) 'stimulus)
+	   (setf results (build-vis-locs-for-stimulus
+			  (trial-stimulus (current-trial task)))))
+				     
+	  ((equalp (task-phase task) 'rule)
+	   (setf results (build-vis-locs-for-rule
+			  (trial-rule (current-trial task))))))
 
-(defmethod build-vis-locs-for ((trial list) vismod)
-  (let ((results nil))
-    (push  `(isa simon-stimulus-location 
-		 kind simon-stimulus
-		 value stimulus
-		 color black
-		 screen-x 0
-		 screen-y 0
-		 height 400 
-		 width 400
-		 ,@trial)
-	   results)
+    (push `(isa visual-location
+		kind screen
+		value ,phase
+		color black
+		screen-x 0
+		screen-y 0
+		height 400 
+		width 400)
+	  results)
     (define-chunks-fct results)))
 
-(defmethod build-vis-locs-for ((phase symbol) vismod)
-  (let ((results nil))
-    (push  `(isa simon-stimulus-location 
-		 kind screen
-		 value ,phase
+(defun build-vis-locs-for-stimulus (stimulus)
+  (let* ((results nil)
+	 (target (stimulus-target stimulus))
+	 (options (stimulus-options stimulus)))
+    (push  `(isa visual-location 
+		 kind dri-object
+		 value ,target
 		 color black
-		 screen-x 0
-		 screen-y 0
-		 height 400 
-		 width 400)
+		 screen-x ,(round (/ (- *screen-width* *char-width*) 2))
+		 screen-y ,(round (/ (- *screen-height* *char-height*) 2))
+		 height *char-height*
+		 width *char-width*)
 	   results)
-    (define-chunks-fct results)))
+    
+    (let ((n (1+ (length options))))
+      (dolist (option options results)
+	(push  `(isa visual-location 
+		     kind dri-object
+		     value ,option
+		     color black
+		     screen-x ,(round (+ (* (1+ (position option options))
+					    (/ *screen-width* n))
+					 (/ *char-width* 2)))
+		     screen-y ,(round (/ *screen-height* 3))
+		     height *char-height*
+		     width *char-width*)
+	       results)))))
+
+(defun build-vis-locs-for-rule (rule)
+  (let* ((results nil))
+    (let ((n (1+ (length rule)))
+	  (roles '(rule action))) 
+      
+      (dolist (object (reverse (pairlis rule roles)) results)
+	(push  `(isa visual-location 
+		     kind ,(cdr object)
+		     value ,(car object)
+		     color black
+		     screen-x ,(round (/ (- *screen-width*
+					    (* *char-width*
+					       (symbol-length object)))
+					 2))
+		     screen-y ,(round (- (* (1+ (position object rule))
+					    (/ *screen-height* n))
+					 (/  *char-height* 2)))
+		     height *char-height*
+		     width *char-width*)
+	       results)))))
 
 
 (defmethod vis-loc-to-obj ((task dri-task) vis-loc)
   "Transforms a visual-loc into a visual object"
-  (let ((new-chunk nil)
+  (let ((new-chunk (first (define-chunks-fct 
+			      `((isa visual-object)))))
 	(phase (task-phase task))
 	(stimulus (trial-stimulus (current-trial task))))
-    (if (equal phase 'stimulus)
-	(setf new-chunk (vis-loc-to-obj stimulus vis-loc))
-	(setf new-chunk (vis-loc-to-obj phase vis-loc)))
+    ;(if (equal phase 'stimulus)
+	;(setf new-chunk (vis-loc-to-obj stimulus vis-loc))
+	;(setf new-chunk (vis-loc-to-obj phase vis-loc)))
     (fill-default-vis-obj-slots new-chunk vis-loc)
     new-chunk))
 

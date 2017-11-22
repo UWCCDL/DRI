@@ -11,10 +11,11 @@
 (clear-all)
 (define-model dri
 
+(sgp :auto-attend t)
+
 (chunk-type parity-fact number parity)
-(chunk-type rule type parity1 target1 parity2 target2 rtype)
-(chunk-type (dri-stimulus (:include visual-object)
-			  number left right))
+(chunk-type (dri-stimulus (:include visual-object))
+			  number left right)
 (add-dm (even isa chunk) (odd isa chunk)
 	(a isa chunk) (b isa chunk)
 	(one isa chunk) (two isa chunk)
@@ -41,19 +42,70 @@
 	(nine-odd isa parity-fact
 		  number nine parity odd))
 
-(add-dm (c1 isa rule type rule
-	    side1 even target1 index
-	    side2 odd target1 middle
-	    rtype concrete)
-	(s1 isa rule type rule
-	    side1 even taget1 a
-	    side2 odd target2 b)
-	(stim1 isa dri-stimulus
+(add-dm     (stim1 isa dri-stimulus
 	       width 400
 	       height 300
 	       number nine
 	       left a
 	       right b))
+
+;;; RESPONSE MONKEY
+
+(p look-at-screen
+   ?visual>
+     state free
+     buffer empty
+   ?visual-location>
+     state free
+     buffer empty
+==>
+   +visual-location>
+     kind screen
+)
+
+(p look-at-target
+   ?visual>
+     state free
+
+   =visual>
+     value stimulus
+==>
+   +visual-location>
+     kind target
+)
+
+(p look-at-rule
+   ?visual>
+     state free
+
+   =visual>
+     value rule
+==>
+   +visual-location>
+     value target
+)
+
+(p response-monkey
+   ?visual>
+     buffer full
+
+  =visual>
+   - kind screen
+
+   ?manual>
+     preparation free
+     processor free
+     execution free
+
+==>
+   +manual>
+     isa punch
+     hand right
+     finger index
+)
+
+
+;;; ---- End dummy
 
 ;; Checking parity
 
@@ -100,7 +152,7 @@
    =imaginal>
      kind inferred
      parity1 nil
-==>
+==>)
         
 	       
 (p respond
