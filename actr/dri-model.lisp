@@ -14,8 +14,10 @@
 (sgp :auto-attend t)
 
 (chunk-type parity-fact number parity)
+
 (chunk-type (dri-stimulus (:include visual-object))
 			  number left right)
+
 (add-dm (even isa chunk) (odd isa chunk)
 	(a isa chunk) (b isa chunk)
 	(one isa chunk) (two isa chunk)
@@ -23,6 +25,19 @@
 	(five isa chunk) (six isa chunk)
 	(seven isa chunk) (eight isa chunk)
 	(nine isa chunk)
+
+	;; Basic structures
+	(stimulus isa chunk)
+	(rule isa chunk)
+	(screen isa chunk)
+	(pause isa chunk)
+	(option isa chunk)
+	(target isa chunk)
+	(action isa chunk)
+	(can-proceed isa chunk)
+	(mist-infer isa chunk)
+
+	;; Parity
 	(one-odd isa parity-fact
 		 number one parity odd)
 	(two-even isa parity-fact
@@ -58,6 +73,14 @@
    ?visual-location>
      state free
      buffer empty
+==>
+   +visual-location>
+     kind screen
+)
+
+(p recover-from-error
+   ?visual>
+     error t
 ==>
    +visual-location>
      kind screen
