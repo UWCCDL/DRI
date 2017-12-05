@@ -490,13 +490,15 @@
 (defmethod vis-loc-to-obj ((task dri-task) vis-loc)
   "Transforms a visual-loc into a visual object"
   (let ((new-chunk (first (define-chunks-fct 
-			      `((isa visual-object))))))
+			      `((isa dri-object))))))
 	;(phase (task-phase task))
 	;(stimulus (trial-stimulus (current-trial task))))
     ;(if (equal phase 'stimulus)
 	;(setf new-chunk (vis-loc-to-obj stimulus vis-loc))
 	;(setf new-chunk (vis-loc-to-obj phase vis-loc)))
     (fill-default-vis-obj-slots new-chunk vis-loc)
+    (set-chunk-slot-value-fct new-chunk 'kind
+			      (chunk-slot-value-fct vis-loc 'kind))  
     new-chunk))
 
 

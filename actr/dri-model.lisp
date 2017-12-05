@@ -15,8 +15,10 @@
 
 (chunk-type parity-fact number parity)
 
-(chunk-type (dri-stimulus (:include visual-object))
-			  number left right)
+(chunk-type (dri-object (:include visual-object))
+	    kind)
+
+(chunk-type wm rule action)
 
 (add-dm (even isa chunk) (odd isa chunk)
 	(a isa chunk) (b isa chunk)
@@ -64,9 +66,10 @@
 	       left a
 	       right b))
 
-;;; RESPONSE MONKEY
+;;; VISUAL PROCESSING
 
 (p look-at-screen
+   "Looks at the screen if nothing to process" 
    ?visual>
      state free
      buffer empty
@@ -79,6 +82,7 @@
 )
 
 (p recover-from-error
+   "If the visual scene changes abrubtly, re-encode the screen"
    ?visual>
      error t
 ==>
@@ -86,34 +90,71 @@
      kind screen
 )
 
-(p look-at-target
-   ?visual>
-     state free
-
-   =visual>
-     value stimulus
-==>
-   +visual-location>
-     kind target
-)
+;;; RULE ENCODING
 
 (p look-at-rule
    ?visual>
+   - state error
      state free
 
    =visual>
-     value rule
+     kind screen
 ==>
    +visual-location>
-     value target
+     kind rule
 )
+
+(p encode-rule
+   ?visual>
+     state free
+   ?imaginal>
+     state free
+     buffer empty
+   =visual>
+     kind rule
+     value =RULE
+==>
+  +imaginal>
+     isa wm
+     rule =RULE
+  =visual>
+)
+
+(p look-at-action
+   ?visual>
+     state free
+   ?imaginal>
+     buffer full
+   =visual>
+     kind rule
+==>
+   +visual-location>
+     kind action  
+     )
+
+
+(p encode-action
+   ?visual>
+     state free
+   ?imaginal>
+     state free
+     buffer full
+   =visual>
+     kind action
+     value =ACTION
+==>
+  +imaginal>
+     isa wm
+     action =ACTION
+     )
 
 (p response-monkey
    ?visual>
      buffer full
 
   =visual>
-   - kind screen
+  - kind screen
+  - kind rule
 
    ?manual>
      preparation free
@@ -125,6 +166,20 @@
      isa punch
      hand right
      finger index
+)
+
+;;; TARGET PROCESSING
+
+
+(p look-at-target
+   ?visual>
+     state free
+
+   =visual>
+     value stimulus
+==>
+   +visual-location>
+     kind target
 )
 
 

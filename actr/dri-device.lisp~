@@ -85,9 +85,10 @@
 
 (defparameter *example-stimulus* '(9 (b a)))
 
-
 (defparameter *letters* '(a b))
+
 (defparameter *fingers* '(index middle))
+
 (defparameter *parity* '(odd even))
 
 (defun letter? (ltr)
@@ -126,7 +127,7 @@
        (= 2 (length (second stm)))
        (numberp (first stm))
        (or (every #'letter? (second stm))
-	   (every #'hand? (second stm)))))
+	   (every #'finger? (second stm)))))
 
 (defun stimulus-target (stm)
   (when (dri-stimulus? stm)
@@ -329,8 +330,8 @@
 	     
 	     (set-trial-actual-response trial response)
 	     (when (act-r-loaded?)
-	       (set-trial-response-time (current-trial task)
-					(mp-time))
+	       (set-trial-stimulus-response-time (current-trial task)
+						 (mp-time))
 	       (if (= 1 (trial-accuracy (current-trial task)))
 		   (trigger-reward 1)
 		   (trigger-reward -1))
@@ -440,27 +441,27 @@
 	 (target (stimulus-target stimulus))
 	 (options (stimulus-options stimulus)))
     (push  `(isa visual-location 
-		 kind dri-object
+		 kind target
 		 value ,target
 		 color black
 		 screen-x ,(round (/ (- *screen-width* *char-width*) 2))
 		 screen-y ,(round (/ (- *screen-height* *char-height*) 2))
-		 height *char-height*
-		 width *char-width*)
+		 height ,*char-height*
+		 width ,*char-width*)
 	   results)
     
     (let ((n (1+ (length options))))
       (dolist (option options results)
 	(push  `(isa visual-location 
-		     kind dri-object
+		     kind option
 		     value ,option
 		     color black
 		     screen-x ,(round (+ (* (1+ (position option options))
 					    (/ *screen-width* n))
 					 (/ *char-width* 2)))
 		     screen-y ,(round (/ *screen-height* 3))
-		     height *char-height*
-		     width *char-width*)
+		     height ,*char-height*
+		     width ,*char-width*)
 	       results)))))
 
 (defun build-vis-locs-for-rule (rule)
@@ -481,17 +482,17 @@
 		     screen-y ,(round (- (* (1+ (position (car object) rule))
 					    (/ *screen-height* n))
 					 (/  *char-height* 2)))
-		     height *char-height*
-		     width *char-width*)
+		     height ,*char-height*
+		     width ,*char-width*)
 	       results)))))
 
 
 (defmethod vis-loc-to-obj ((task dri-task) vis-loc)
   "Transforms a visual-loc into a visual object"
   (let ((new-chunk (first (define-chunks-fct 
-			      `((isa visual-object)))))
-	(phase (task-phase task))
-	(stimulus (trial-stimulus (current-trial task))))
+			      `((isa visual-object))))))
+	;(phase (task-phase task))
+	;(stimulus (trial-stimulus (current-trial task))))
     ;(if (equal phase 'stimulus)
 	;(setf new-chunk (vis-loc-to-obj stimulus vis-loc))
 	;(setf new-chunk (vis-loc-to-obj phase vis-loc)))
