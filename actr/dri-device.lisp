@@ -17,9 +17,9 @@
 ;;; ----------------------------------------------------------------
 
 (defun act-r-loaded? ()
-  "Cheap hack to check whether ACTR is loaded"
-  (and (fboundp 'run-n-events)
-       (fboundp 'start-environment)))
+  "Checks whether ACTR is loaded"
+  (member :ACT-R *features*))
+
 
 (defun dri-reload ()
   (reload)

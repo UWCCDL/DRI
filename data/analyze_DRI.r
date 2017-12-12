@@ -63,16 +63,19 @@ summary(aov(ResponseTime ~ (Instructed * Stimulation * Rule * Site)
 dv <- subset(d, d$Stimulation != "PMd")
 summary(aov(ResponseTime ~ (Stimulation * Rule * Site * Instructed) + Error(Subject/(Stimulation * Rule * Site * Instructed)), dv))
 
+pdf("InferredLateStim.pdf", width = 5, height = 5)
+
 k1 <- subset(ds, ds$Stimulation == "Late" & ds$Instructed == "Inferred")
 ms <- tapply(k1$ResponseTime, list(k1$Site, k1$Rule), mean)
 ses <- tapply(k1$ResponseTime, list(k1$Site, k1$Rule), se)
 xs <- barplot(ms, beside = T, legend=T, 
         ylim=c(0,2), main="Inferred Rules, Late Stimulation", border="white", col=c("grey65", "grey45"))
-arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90)
-arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90)
-
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length=0.1)
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length=0.1)
 # Adds some numbers
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 3))
+dev.off()
+
 
 a1 <- aov(ResponseTime ~ (Rule * Site) + Error(Subject/(Rule * Site)), data=k1)
 summary(a1 <- aov(ResponseTime ~ (Rule * Site) + Error(Subject/(Rule * Site)), data=k1)
@@ -89,46 +92,50 @@ sub <- subset(k1, k1$Site == "PMd")
 ms <- tapply(sub$ResponseTime, sub$Rule, mean)
 d = abs(ms[1] - ms[2])/var(sub$ResponseTime)
 
+pdf("InstructedLateStim.pdf", width = 5, height = 5)
 k2 <- subset(ds, ds$Stimulation == "Late" & ds$Instructed == "Instructed")
 ms <- tapply(k2$ResponseTime, list(k2$Site, k2$Rule), mean)
 ses <- tapply(k2$ResponseTime, list(k2$Site, k2$Rule), se)
 xs <- barplot(ms, beside = T, legend=T, 
               ylim=c(0,2), main="Instructed Rules, Late Stimulation", border="white", col=c("grey65", "grey45"))
-arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90)
-arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90)
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length=0.1)
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length=0.1)
 # Adds some numbers
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 2))
-
+dev.off()
 
 # Only effect of rule
 summary(aov(ResponseTime ~ (Rule * Site) + Error(Subject/(Rule * Site)), data=k2))
         
 
-
+pdf("InferredEarlyStim.pdf", width = 5, height = 5)
 k3 <- subset(ds, ds$Stimulation == "Early" & ds$Instructed == "Inferred")
 ms <- tapply(k3$ResponseTime, list(k3$Site, k3$Rule), mean)
 ses <- tapply(k3$ResponseTime, list(k3$Site, k3$Rule), se)
 xs <- barplot(ms, beside = T, legend=T, 
-              ylim=c(0,1.6), main="Inferred Rules, Early Stimulation", border="white", col=c("grey65", "grey45"))
-arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90)
-arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90)
+              ylim=c(0,1.75), main="Inferred Rules, Early Stimulation", border="white", col=c("grey65", "grey45"))
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length=0.1)
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length=0.1)
 
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 2))
+dev.off()
 
 # only effect of rule
 summary(aov(ResponseTime ~ (Rule * Site) + Error(Subject/(Rule * Site)), data=k3))
 
 
+pdf("InstructedEarlyStim.pdf", width = 5, height = 5)
 k4 <- subset(ds, ds$Stimulation == "Early" & ds$Instructed == "Instructed")
 
 ms <- tapply(k4$ResponseTime, list(k4$Site, k4$Rule), mean)
 ses <- tapply(k4$ResponseTime, list(k4$Site, k4$Rule), se)
 xs <- barplot(ms, beside = T, legend=T, 
-              ylim=c(0,1.6), main="Instructed Rules, Early Stimulation", border="white", col=c("grey65", "grey45"))
-arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90)
-arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90)
+              ylim=c(0,1.75), main="Instructed Rules, Early Stimulation", border="white", col=c("grey65", "grey45"))
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length = 0.1)
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length =0.1)
 
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 2))
+dev.off()
 
 
 # only effect of rule

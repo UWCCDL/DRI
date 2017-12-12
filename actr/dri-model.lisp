@@ -11,7 +11,8 @@
 (clear-all)
 (define-model dri
 
-(sgp :auto-attend t)
+(sgp :auto-attend t
+     :esc t)
 
 (chunk-type parity-fact number parity)
 
@@ -116,6 +117,7 @@
 ==>
   +imaginal>
      isa wm
+     kind instructions
      rule =RULE
   =visual>
 )
@@ -123,38 +125,50 @@
 (p look-at-action
    ?visual>
      state free
+
    ?imaginal>
-     buffer full
+     state free
+     
    =visual>
      kind rule
+
+   =imaginal>
+   - rule nil
+     action nil
 ==>
+   =imaginal>     
    +visual-location>
      kind action  
-     )
+)
 
 
 (p encode-action
    ?visual>
      state free
+
    ?imaginal>
      state free
-     buffer full
+
    =visual>
      kind action
      value =ACTION
+    
+   =imaginal>
+   - rule nil
+     action nil
 ==>
-  +imaginal>
+  *imaginal>
      isa wm
      action =ACTION
-     )
+)
 
-(p response-monkey
-   ?visual>
-     buffer full
+(p move-on
+   =imaginal>
+   - rule nil
+   - action nil
 
-  =visual>
-  - kind screen
-  - kind rule
+   ?imaginal>
+     state free
 
    ?manual>
      preparation free
@@ -181,6 +195,50 @@
    +visual-location>
      kind target
 )
+
+
+(p retrieve-parity
+   ?visual>
+     state free
+
+   =imaginal>
+     isa wm
+   - rule nil
+     
+   ?retrieval>
+     state free
+   
+   =visual>
+     kind target
+     value =NUM
+
+==>
+  =visual>
+
+  +retrieval>
+    isa parity-fact
+    number =NUM
+)
+
+(p response-monkey
+   ?visual>
+     buffer full
+
+   =visual>
+     kind zoomzoom ; target
+
+   ?manual>
+     preparation free
+     processor free
+     execution free
+
+==>
+   +manual>
+     isa punch
+     hand right
+     finger index
+)
+
 
 
 ;;; ---- End dummy
