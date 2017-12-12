@@ -17,9 +17,9 @@
 (chunk-type parity-fact number parity)
 
 (chunk-type (dri-object (:include visual-object))
-	    kind)
+	    kind location)
 
-(chunk-type wm rule action)
+(chunk-type wm rule action kind)
 
 (add-dm (even isa chunk) (odd isa chunk)
 	(a isa chunk) (b isa chunk)
@@ -206,6 +206,7 @@
      
    ?retrieval>
      state free
+     buffer empty
    
    =visual>
      kind target
@@ -213,21 +214,25 @@
 
 ==>
   =visual>
-
+  =imaginal>
   +retrieval>
     isa parity-fact
     number =NUM
 )
 
-;;; MATCHING (INSTRUCTED)
+;;; RESPONSE
+
+;;; RESPONSE for FINGERS
 
 (p respond-instructed-finger
    =imaginal>
      rule =RULE
      action =FINGER
+   - action A
+   - action B  
 
    =visual>
-     isa target
+     kind target
      value =NUM
      
    =retrieval>
@@ -247,20 +252,21 @@
      finger =FINGER
 )
 
-
-(p respond-instructed-finger
+(p respond-inferred-finger-middle
    =imaginal>
      rule =RULE
-     action =FINGER
+     action index
+   - action A
+   - action B  
 
    =visual>
-     isa target
+     kind target
      value =NUM
      
    =retrieval>
      isa parity-fact
      number =NUM
-     parity =RULE
+   - parity =RULE
     
    ?manual>
      preparation free
@@ -271,5 +277,123 @@
    +manual>
      isa punch
      hand right
-     finger =FINGER
+     finger middle
 )
+
+(p respond-inferred-finger-index
+   =imaginal>
+     rule =RULE
+     action middle
+   - action A
+   - action B  
+
+   =visual>
+     kind target
+     value =NUM
+     
+   =retrieval>
+     isa parity-fact
+     number =NUM
+   - parity =RULE
+    
+   ?manual>
+     preparation free
+     processor free
+     execution free
+
+==>
+   +manual>
+     isa punch
+     hand right
+     finger index
+)
+
+
+;;; RESPONSE FOR SYMBOLS
+
+(p find-instructed-symbol
+   =imaginal>
+     action =SYMBOL
+   - action index
+   - action middle  
+
+   =visual>
+     kind target
+     value =NUM
+     
+   =retrieval>
+     isa parity-fact
+     number =NUM
+    
+   ?visual>
+     state free
+==>
+   =retrieval>
+   =imaginal>
+   +visual-location>
+     kind option
+     value =SYMBOL
+)
+
+
+(p respond-instructed-symbol-right
+   =imaginal>
+     action =SYMBOL
+     rule =PARITY
+   - action index
+   - action middle  
+
+   =visual>
+     kind option
+     value =SYMBOL
+     location left
+     
+   =retrieval>
+     isa parity-fact
+     number =NUM
+     parity =PARITY
+    
+   ?manual>
+     preparation free
+     processor free
+     execution free
+
+==>
+  +manual>
+     isa punch
+     hand right
+     finger index
+)
+
+(p respond-instructed-symbol-left
+   =imaginal>
+     action =SYMBOL
+     rule =PARITY
+   - action index
+   - action middle  
+
+   =visual>
+     kind option
+     value =SYMBOL
+     location right
+     
+   =retrieval>
+     isa parity-fact
+     number =NUM
+     parity =PARITY
+    
+   ?manual>
+     preparation free
+     processor free
+     execution free
+
+==>
+  +manual>
+     isa punch
+     hand right
+     finger middle
+)
+
+
+
+) ;; end of model

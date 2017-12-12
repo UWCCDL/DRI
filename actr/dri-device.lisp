@@ -18,7 +18,7 @@
 
 (defun act-r-loaded? ()
   "Checks whether ACTR is loaded"
-  (member :ACT-R *features*))
+  (member :ACT-R *features*))xo
 
 
 (defun dri-reload ()
@@ -458,7 +458,7 @@
 		     color black
 		     screen-x ,(round (+ (* (1+ (position option options))
 					    (/ *screen-width* n))
-					 (/ *char-width* 2)))
+					 (* -1 (/ *char-width* 2))))
 		     screen-y ,(round (/ *screen-height* 3))
 		     height ,*char-height*
 		     width ,*char-width*)
@@ -498,7 +498,21 @@
 	;(setf new-chunk (vis-loc-to-obj phase vis-loc)))
     (fill-default-vis-obj-slots new-chunk vis-loc)
     (set-chunk-slot-value-fct new-chunk 'kind
-			      (chunk-slot-value-fct vis-loc 'kind))  
+			      (chunk-slot-value-fct vis-loc 'kind))
+    (let* ((x (chunk-slot-value-fct vis-loc 'screen-x))
+	   (left (/ *screen-width* 3))
+	   (center (/ *screen-width* 2))
+	   (right (* left 2))
+	   (pos nil))
+      
+      (cond ((< (abs (- left x)) *char-width*)
+	     (setf pos 'left))
+	    ((< (abs (- right x)) *char-width*)
+	     (setf pos 'right))
+	    ((< (abs (- center x)) *char-width*)
+	     (setf pos 'center)))
+      
+      (set-chunk-slot-value-fct new-chunk 'location pos))
     new-chunk))
 
 
