@@ -367,3 +367,15 @@ box(bty="o")
 summary(aov(a ~ (Rule * Site) + Error(Subject/(Rule * Site)), drift))
 summary(aov(v ~ (Rule * Site) + Error(Subject/(Rule * Site)), drift))
 summary(aov(Ter ~ (Rule * Site) + Error(Subject/(Rule * Site)), drift))
+
+# Encoding times
+
+k2 <- subset(ds, ds$Stimulation == "Late" & ds$Instructed == "Instructed")
+ms <- tapply(k2$ResponseTime, list(k2$Site, k2$Rule), mean)
+ses <- tapply(k2$EncodingTime, list(k2$Site, k2$Rule), se)
+xs <- barplot(ms, beside = T, legend=T, 
+              ylim=c(0,2), main="Instructed Rules, Late Stimulation", border="white", col=c("grey65", "grey45"))
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length=0.1)
+arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length=0.1)
+# Adds some numbers
+text(x = xs, y = ms + ses + 0.05, labels = round(ms, 2))

@@ -242,27 +242,16 @@
 (defun set-trial-stimulus-type (trial typ)
   (setf (nth 9 trial) typ))
 
+;;; STIM GENERATION AND ANALYSIS
 
+(defun trial-stimulus-response-latency (trial)
+  (- (trial-stimulus-response-time trial)
+     (trial-stimulus-onset-time trial)))
 
-;;;;;; OLD SIMON CODE
+(defun trial-rule-response-latency (trial)
+  (- (trial-rule-response-time trial)
+     (trial-rule-onset-time trial)))
 
-
-(defun generate-stimuli ()
-  (let ((result nil))
-    (dolist (stimulus *default-simon-congruent-stimuli*)
-      (dotimes (i 75)
-	(push (copy-seq stimulus) result)))
-    (dolist (stimulus *default-simon-incongruent-stimuli*)
-      (dotimes (i 25)
-	(push (copy-seq stimulus) result)))
-    result))
-
-(defun generate-trials (stim-list)
-  (mapcar #'make-simon-trial stim-list))
-
-(defun trial-rt (trial)
-  (- (trial-response-time trial)
-     (trial-onset-time trial)))
 
 (defun trial-accuracy (trial)
   (if (equal (trial-correct-response trial)
@@ -346,6 +335,8 @@
   (cond ((equal (task-phase task) 'rule)
 	 (setf (task-phase task) 'stimulus)
 	 (when (act-r-loaded?)
+	   (set-trial-rule-response-time (current-trial task)
+					 (mp-time))
 	   (set-trial-stimulus-onset-time (current-trial task)
 					  (mp-time))))
 	

@@ -22,7 +22,7 @@
 (define-model dri
 
 (sgp :auto-attend t
-     :esc t)
+     :esc nil)
 
 (chunk-type parity-fact number parity)
 
