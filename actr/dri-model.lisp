@@ -4,8 +4,18 @@
 ;;;; An ACT-R model for the DRI experiment by Patrick J. Rice.
 ;;;; -----------------------------------------------------------------
 ;;;; General idea is to have different models
-;;;; Different models:
+;;;; 
+;;;; Implementing TMS:
+;;;; TMS is implemented by adding 500ms to the execution time
+;;;; of any production that could be targeted. Productions encode
+;;;; control, so the assumption is legit.
+;;;; (Potentially, all of the prods could be tested!!!).
 ;;;;
+;;;; to do:
+;;;; Add a DM phase, in which the model decides whether it is the case
+;;;; to respond or to invert.
+;;;;
+
 
 
 (clear-all)
@@ -21,8 +31,11 @@
 
 (chunk-type wm rule action kind)
 
+(chunk-type trial step)
+
 (add-dm (even isa chunk) (odd isa chunk)
 	(a isa chunk) (b isa chunk)
+	(processing isa chunk) (respond isa chunk)
 	;;(one isa chunk) (two isa chunk)
 	;;(three isa chunk) (four isa chunk)
 	;;(five isa chunk) (six isa chunk)
@@ -112,6 +125,11 @@
      isa wm
      kind instructions
      rule =RULE
+
+  +goal>
+     isa trial
+     step processing
+     
   =visual>
 )
 
@@ -319,40 +337,76 @@
 
    =visual>
      kind target
-     value =NUM
      
-   =retrieval>
-     isa parity-fact
-     number =NUM
+   ?retrieval>
+     buffer full
     
    ?visual>
      state free
 ==>
-   =retrieval>
    =imaginal>
    +visual-location>
      kind option
      value =SYMBOL
 )
 
-
-(p respond-instructed-symbol-right
+(p decide-instructed-symbol
    =imaginal>
-     action =SYMBOL
      rule =PARITY
-   - action index
-   - action middle  
 
+   =goal>
+     step processing
+   
    =visual>
      kind option
-     value =SYMBOL
-     location left
      
    =retrieval>
      isa parity-fact
-     number =NUM
      parity =PARITY
+
+   ?visual>
+     state free
+==>
+   *goal>     
+     step respond
+   =visual>
+)
+
+(p decide-inferred-symbol
+   =imaginal>
+     rule =PARITY
+
+   =goal>
+     step processing
+   
+   =visual>
+     kind option
+     value =OPTION
+     
+   =retrieval>
+     isa parity-fact
+   - parity =PARITY
+
+   ?visual>
+     state free
+==>
+   +visual-location>
+     kind option
+   - value =OPTION
     
+   *goal>     
+     step respond
+
+)
+
+(p respond-symbol-left
+   =goal>
+     step respond
+
+   =visual>
+     kind option
+     location left
+     
    ?manual>
      preparation free
      processor free
@@ -365,23 +419,15 @@
      finger index
 )
 
-(p respond-instructed-symbol-left
-   =imaginal>
-     action =SYMBOL
-     rule =PARITY
-   - action index
-   - action middle  
+
+(p respond-symbol-right
+   =goal>
+     step respond
 
    =visual>
      kind option
-     value =SYMBOL
      location right
      
-   =retrieval>
-     isa parity-fact
-     number =NUM
-     parity =PARITY
-    
    ?manual>
      preparation free
      processor free
