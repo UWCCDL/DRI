@@ -23,12 +23,11 @@
 
 (add-dm (even isa chunk) (odd isa chunk)
 	(a isa chunk) (b isa chunk)
-	(one isa chunk) (two isa chunk)
-	(three isa chunk) (four isa chunk)
-	(five isa chunk) (six isa chunk)
-	(seven isa chunk) (eight isa chunk)
-	(nine isa chunk)
-
+	;;(one isa chunk) (two isa chunk)
+	;;(three isa chunk) (four isa chunk)
+	;;(five isa chunk) (six isa chunk)
+	;;(seven isa chunk) (eight isa chunk)
+	;;(nine isa chunk)
 	;; Basic structures
 	(stimulus isa chunk)
 	(rule isa chunk)
@@ -37,35 +36,29 @@
 	(option isa chunk)
 	(target isa chunk)
 	(action isa chunk)
+	(instructions isa chunk)
 	(can-proceed isa chunk)
 	(mist-infer isa chunk)
 
 	;; Parity
 	(one-odd isa parity-fact
-		 number one parity odd)
+		 number 1 parity odd)
 	(two-even isa parity-fact
-		 number two parity even)
+		 number 2 parity even)
 	(three-odd isa parity-fact
-		 number three parity odd)
+		 number 3 parity odd)
 	(four-even isa parity-fact
-		 number four parity even)
+		 number 4 parity even)
 	(five-odd isa parity-fact
-		 number five parity odd)
+		 number 5 parity odd)
 	(six-even isa parity-fact
-		 number six parity even)
+		 number 6 parity even)
 	(seven-odd isa parity-fact
-		   number seven parity odd)
+		   number 7 parity odd)
 	(eight-even isa parity-fact
-		    number eight parity even)
+		    number 8 parity even)
 	(nine-odd isa parity-fact
-		  number nine parity odd))
-
-(add-dm     (stim1 isa dri-stimulus
-	       width 400
-	       height 300
-	       number nine
-	       left a
-	       right b))
+		  number 9 parity odd))
 
 ;;; VISUAL PROCESSING
 
@@ -82,7 +75,7 @@
      kind screen
 )
 
-(p recover-from-error
+(p recover-from-visual-change
    "If the visual scene changes abrubtly, re-encode the screen"
    ?visual>
      error t
@@ -157,6 +150,8 @@
    - rule nil
      action nil
 ==>
+  =visual>
+
   *imaginal>
      isa wm
      action =ACTION
@@ -167,6 +162,9 @@
    - rule nil
    - action nil
 
+   =visual>
+     kind action
+   
    ?imaginal>
      state free
 
@@ -176,6 +174,8 @@
      execution free
 
 ==>
+   =imaginal>
+
    +manual>
      isa punch
      hand right
@@ -183,7 +183,6 @@
 )
 
 ;;; TARGET PROCESSING
-
 
 (p look-at-target
    ?visual>
@@ -202,7 +201,7 @@
      state free
 
    =imaginal>
-     isa wm
+     kind instructions
    - rule nil
      
    ?retrieval>
@@ -220,13 +219,22 @@
     number =NUM
 )
 
-(p response-monkey
-   ?visual>
-     buffer full
+;;; MATCHING (INSTRUCTED)
+
+(p respond-instructed-finger
+   =imaginal>
+     rule =RULE
+     action =FINGER
 
    =visual>
-     kind zoomzoom ; target
-
+     isa target
+     value =NUM
+     
+   =retrieval>
+     isa parity-fact
+     number =NUM
+     parity =RULE
+    
    ?manual>
      preparation free
      processor free
@@ -236,72 +244,32 @@
    +manual>
      isa punch
      hand right
-     finger index
+     finger =FINGER
 )
 
 
-
-;;; ---- End dummy
-
-;; Checking parity
-
-(p can-proceed
-   =visual>
-     number =NUM
-   =retrieval>
-     number =NUM
-     parity =PAR
-     target =TRGT
+(p respond-instructed-finger
    =imaginal>
-     target =PAR
-   ==>
-   *imaginal>
-     target =TRGT
-)
+     rule =RULE
+     action =FINGER
 
-
-(p must-infer
    =visual>
-     number =NUM
-   =retrieval>
-     number =NUM
-     parity =PAR
-   =imaginal>
-   - target =PAR
-   ==>
-   @retrieval> =imaginal
-   +imaginal>
-     type rule
-     kind inferred
-     side1 nil
-     target1 nil)
+     isa target
+     value =NUM
      
-    
-
-;; Process of inferring a rule
-
-(p reverse-parity
    =retrieval>
-     type rule
-     parity1 =S
-     target1 =T
-   =imaginal>
-     kind inferred
-     parity1 nil
-==>)
-        
-	       
-(p respond
-   ?imaginal>
-     state free
+     isa parity-fact
+     number =NUM
+     parity =RULE
+    
    ?manual>
      preparation free
+     processor free
      execution free
-   =imaginal>
-     response =R
+
 ==>
    +manual>
-     cmd punch
-     finger =R
-     )
-); end of model
+     isa punch
+     hand right
+     finger =FINGER
+)
