@@ -74,13 +74,17 @@ arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length=0.1)
 arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length=0.1)
 # Adds some numbers
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 3))
+box(bty="o")
 dev.off()
 
+tapply(k1$ResponseTime, list(k1$Site, k1$Rule), mean)
 
 a1 <- aov(ResponseTime ~ (Rule * Site) + Error(Subject/(Rule * Site)), data=k1)
 summary(a1 <- aov(ResponseTime ~ (Rule * Site) + Error(Subject/(Rule * Site)), data=k1)
 )
+
 #TukeyHSD(a1, "Site", ordered=T)
+
 t.test(ResponseTime ~ Rule, subset(k1, k1$Site == "PMd"), paired=T)
 t.test(ResponseTime ~ Site, subset(k1, k1$Rule == "Symbolic"), paired=T)
 t1 <- subset(k1, k1$Site=="PMd" & k1$Rule=="Symbolic")
@@ -102,11 +106,12 @@ arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length=0.1)
 arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length=0.1)
 # Adds some numbers
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 2))
+box(bty="o")
 dev.off()
 
 # Only effect of rule
 summary(aov(ResponseTime ~ (Rule * Site) + Error(Subject/(Rule * Site)), data=k2))
-        
+tapply(k2$ResponseTime, list(k2$Site, k2$Rule), mean)       
 
 pdf("InferredEarlyStim.pdf", width = 5, height = 5)
 k3 <- subset(ds, ds$Stimulation == "Early" & ds$Instructed == "Inferred")
@@ -118,10 +123,13 @@ arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length=0.1)
 arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length=0.1)
 
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 2))
+box(bty="o")
 dev.off()
 
 # only effect of rule
 summary(aov(ResponseTime ~ (Rule * Site) + Error(Subject/(Rule * Site)), data=k3))
+
+tapply(k3$ResponseTime, list(k3$Site, k3$Rule), mean)       
 
 
 pdf("InstructedEarlyStim.pdf", width = 5, height = 5)
@@ -135,6 +143,7 @@ arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length = 0.1)
 arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length =0.1)
 
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 2))
+box(bty="o")
 dev.off()
 
 
