@@ -1,4 +1,4 @@
-#DRI Model
+# DRI Model
 
 This is an ACT-R model designed to simulate the results of Patrick
 J. Rice's DRI (Delayed Rule Inference) experiment.
