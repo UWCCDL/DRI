@@ -46,4 +46,31 @@ No other effect was significant (see Data).
 
 ## The Model
 
-The model follows a simple strategy.
+The model follows a simpe strategy. The timeline of the task can be
+divided into three processing phases:
+
+  1. The _Encoding_ phase_. This phase spans the moment from the onset
+  of instructions on the screen to the moment the participant presses
+  the button. During this phase, the instructions are committed to WM
+  in a rather _amodal_ way, e.g. as a verbal code ("Even, Index").
+
+  2. The _Preparation_ phase. During the preparation phase, the
+  verbal instructions are used to prepare mental sensorimotor
+  plans. The translation only happens for the specific motor command
+  specified by the instructions. Thus, "Even, Index" is translated as
+  an activation of an "index" motor chunk, which is placed in WM
+  instead of the word "index".
+
+  3. The _Execution_ phase. During the execution phase, the parity is
+  checked. Two things can happen:
+
+    * If the parity is verified, then the prepared command is
+      executed.
+    * if the parity is violated (__inferred__ instructions), then a
+      new preparation phase is initiated.
+
+
+The effect of TMS occurs only during the _Preparation_ phase for
+symbolic rules. Thus, it does not show up during the _Encoding_ phase,
+and shows up instead for the _Execution_ phase only whenever the
+preparation needs to be re-done (__inferred__ trials).

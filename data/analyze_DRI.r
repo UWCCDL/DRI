@@ -50,9 +50,7 @@ summary(aov(ResponseTime ~ (Instructed * Rule * Stimulation * Site)
             + Error(Subject/(Instructed * Rule * Stimulation * Site)), 
             d))
 
-
 ds <- subset(d, d$Stimulation != "NoStimulation")
-
 
 summary(aov(ResponseTime ~ (Instructed * Stimulation * Rule * Site) 
             + Error(Subject/(Instructed * Stimulation * Rule * Site)), 
