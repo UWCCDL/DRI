@@ -89,6 +89,15 @@ t1 <- subset(k1, k1$Site=="PMd" & k1$Rule=="Symbolic")
 t2 <- subset(k1, k1$Site=="Vertex" & k1$Rule=="Concrete")
 t.test(t1$ResponseTime, t2$ResponseTime, paired=T)
 
+# Cohen's d
+
+cd <- subset(k1, k1$Rule == "Symbolic")
+ms <- tapply(cd$ResponseTime, cd$Site, mean)
+sds <- tapply(cd$ResponseTime, cd$Site, sd)
+m <- ms[1] - ms[2]
+sdpooled <- sqrt(mean(sds**2))
+m/sdpooled
+
 # power
 sub <- subset(k1, k1$Site == "PMd")
 ms <- tapply(sub$ResponseTime, sub$Rule, mean)
