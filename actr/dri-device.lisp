@@ -18,7 +18,7 @@
 
 (defun act-r-loaded? ()
   "Checks whether ACTR is loaded"
-  (member :ACT-R *features*))xo
+  (member :ACT-R *features*))
 
 
 (defun dri-reload ()
