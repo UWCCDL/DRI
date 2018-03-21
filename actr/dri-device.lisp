@@ -482,11 +482,6 @@
   "Transforms a visual-loc into a visual object"
   (let ((new-chunk (first (define-chunks-fct 
 			      `((isa dri-object))))))
-	;(phase (task-phase task))
-	;(stimulus (trial-stimulus (current-trial task))))
-    ;(if (equal phase 'stimulus)
-	;(setf new-chunk (vis-loc-to-obj stimulus vis-loc))
-	;(setf new-chunk (vis-loc-to-obj phase vis-loc)))
     (fill-default-vis-obj-slots new-chunk vis-loc)
     (set-chunk-slot-value-fct new-chunk 'kind
 			      (chunk-slot-value-fct vis-loc 'kind))
@@ -524,8 +519,51 @@
 		    )))))
 
 ;;; ------------------------------------------------------------------
+;;; ACT-R IMPLEMENTATION OF TMS
+;;; ------------------------------------------------------------------
+
+(defparameter *tms-family1* t
+  "Type 1 Family of TMS interface -- disables buffers")
+
+(defparameter *tms-family1-target* 'retrieval
+  "The buffer targeted by PMd TMS")
+
+(defparameter *tms-family2* t
+  "Type 2 Family of TMS interface -- disables buffers")
+
+(defparameter *tms-family2-target* 'retrieval
+  "The buffer targeted by PMd TMS")
+
+;;; ------------------------------------------------------------------
 ;;; DATA COLLECTION AND STATS
 ;;; ------------------------------------------------------------------
+
+(defun summarize-trial (trial)
+  "Summarizes a trial into a list of values"
+  (list (trial-rule trial)
+	(trial-stimulus trial)
+	(trial-rule-type trial)
+	(trial-stimulus-type trial)
+	(trial-rule-response-latency trial)
+	(trial-stimulus-response-latency trial)
+	(trial-accuracy trial)))
+
+(defparameter *col-names* '("Rule" "Stimulus" "RuleType" "StimulusType" "EncodingRT" "ExecutionRT" "Accuracy"))
+
+(defun write-csv (table filename)
+  "Writes a list of trials (formatted as in 'extract-results') in a CSV file"
+  (with-open-file (out filename
+		       :direction :output
+		       :if-exists :append
+		       :if-does-not-exist :create)
+    (dolist (row table)
+      (format out "~{~a~^,~}~%" row))))
+
+(defun save-log (&optional (filename "model.txt"))
+  (let* ((log (mapcar #'summarize-trial
+		      (reverse (experiment-log (current-device)))))
+	 (table (push *col-names* log)))
+    (write-csv table filename)))
 
 (defun analyze-log (log)
   "Analyzes the log of a single run"
@@ -550,8 +588,8 @@
 
 
 (defun result? (lst)
-  "A list is a result IFF it's made of at least four numbers"
-  (and (>= (length lst) 4)
+  "A list is a result IFF it's made of at least eight numbers"
+  (and (>= (length lst) 8)
        (every #'(lambda (x) (or (numberp x)
 				(keywordp x)))
 	      lst)))

@@ -20,11 +20,10 @@
 (define-model dri
 
 (sgp :auto-attend t           ; Automatic encoding
-     :esc t                 ; Yes to subsymbolic (need spreading activation) 
-     :blc 1.5
-     :epl nil
-     :imaginal-delay 0.1
-     ;;:alpha 0.5
+     :esc t                   ; Yes to subsymbolic (need spreading activation) 
+     :visual-activation 2     ; Source of activation
+     :imaginal-activation 2   ; Source of activation
+     :mas 2                   ; Max spreading activation
      )
 
 
@@ -190,7 +189,7 @@
      kind action  
 )
 
-#|
+
 (p encode-action
    "Encode the action"
    ?visual>
@@ -213,7 +212,53 @@
      isa wm
      action =ACTION
      )
-|#
+
+;;; This is the part where the model should rehearse
+
+(p cleanup-wm
+   "After encoding, cleanup WM and retrieve the instructions"
+   ?visual>
+     state free
+
+   ?imaginal>
+     state free
+
+   =visual>
+     kind action
+     value =ACTION
+    
+   =imaginal>
+   - rule nil
+   - action nil
+==>
+  =visual>
+  )
+
+
+(p retrieve-instructions
+   "After letting instructions decay from WM, retrieve them"
+   ?visual>
+     state free
+
+   ?imaginal>
+     state free
+     buffer empty
+
+   ?retrieval>
+     state free
+   
+   =visual>
+     kind action
+     value =ACTION
+    
+==>
+   +retrieval>
+   - rule nil
+   =visual>
+)
+
+
+
 ;;; ------------------------------------------------------------------
 ;;; PREPARATION PHASE
 ;;; ------------------------------------------------------------------
@@ -222,19 +267,18 @@
 
 (p prepare-concrete-response
    "Prepares a plan to respond in case of a concrete rule"
-   =imaginal>
+   =retrieval>
      rule   =RULE
      action =ACTN
+   - action A
+   - action B  
 
    =visual>
      kind action
-     value =ACTN
-   - value A
-   - value B  
    
    ?imaginal>
      state free
-
+     buffer empty
 ==>
    =visual>  
    +imaginal>
@@ -246,19 +290,18 @@
 
 (p prepare-abstract-response
    "Prepares a plan to respond in case of a concrete rule"
-   =imaginal>
+   =retrieval>
      rule   =RULE
-     action nil
+     action =ACTN
+   - action index
+   - action middle
 
    =visual>
      kind action
-     value =ACTN
-   - value index
-   - value middle
    
    ?imaginal>
      state free
-
+     buffer empty
  ==>
    =visual>  
    +imaginal>

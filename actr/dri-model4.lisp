@@ -17,7 +17,7 @@
 ;;;; ------------------------------------------------------------------
 
 (clear-all)
-(define-model dri
+(define-model dri4
 
 (sgp :auto-attend t           ; Automatic encoding
      :esc t                 ; Yes to subsymbolic (need spreading activation) 
