@@ -461,7 +461,7 @@
 	  (roles '(rule action))) 
       
       (dolist (object (reverse (pairlis rule roles)) results)
-	(format t "~A~%" object)
+	;;(format t "~A~%" object)
 	(push  `(isa visual-location 
 		     kind ,(cdr object)
 		     value ,(car object)

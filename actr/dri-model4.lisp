@@ -21,7 +21,7 @@
 
 (sgp :auto-attend t           ; Automatic encoding
      :esc t                 ; Yes to subsymbolic (need spreading activation) 
-     :blc 1.5
+     :blc 1
      :epl nil
      :imaginal-delay 0.1
      ;;:alpha 0.5
@@ -190,7 +190,7 @@
      kind action  
 )
 
-#|
+
 (p encode-action
    "Encode the action"
    ?visual>
@@ -213,7 +213,7 @@
      isa wm
      action =ACTION
      )
-|#
+
 ;;; ------------------------------------------------------------------
 ;;; PREPARATION PHASE
 ;;; ------------------------------------------------------------------
@@ -225,18 +225,13 @@
    =imaginal>
      rule   =RULE
      action =ACTN
-
-   =visual>
-     kind action
-     value =ACTN
-   - value A
-   - value B  
+   - action A
+   - action B  
    
    ?imaginal>
      state free
 
 ==>
-   =visual>  
    +imaginal>
      isa motor-plan
      kind motor
@@ -248,19 +243,14 @@
    "Prepares a plan to respond in case of a concrete rule"
    =imaginal>
      rule   =RULE
-     action nil
-
-   =visual>
-     kind action
-     value =ACTN
-   - value index
-   - value middle
+     action =ACTN
+   - action index
+   - action middle
    
    ?imaginal>
      state free
 
  ==>
-   =visual>  
    +imaginal>
      isa visuomotor-plan
      kind visuomotor
@@ -595,8 +585,6 @@
      finger =RESP
 )
 
-
-
 ;;; DONE
 
 (p done
@@ -610,5 +598,10 @@
 ==>
    !stop!
 )
+
+(sdp (a-b :base-level 5)
+     (b-a :base-level 5)
+     (index-middle :base-level 5)
+     (middle-index :base-level 5))
 
 ) ;; end of model
