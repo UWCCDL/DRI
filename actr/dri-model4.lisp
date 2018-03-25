@@ -19,9 +19,9 @@
 (clear-all)
 (define-model dri4
 
-(sgp :auto-attend t           ; Automatic encoding
+(sgp :auto-attend t         ; Automatic encoding
      :esc t                 ; Yes to subsymbolic (need spreading activation) 
-     :blc 1
+     :blc 1                 ; Base level constant (any effect?)
      :epl nil
      :imaginal-delay 0.1
      ;;:alpha 0.5

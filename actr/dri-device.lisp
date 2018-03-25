@@ -321,9 +321,9 @@
 	     (when (act-r-loaded?)
 	       (set-trial-stimulus-response-time (current-trial task)
 						 (mp-time))
-	       (if (= 1 (trial-accuracy (current-trial task)))
-		   (trigger-reward 1)
-		   (trigger-reward -1))
+	       ;;(if (= 1 (trial-accuracy (current-trial task)))
+	       ;;   (trigger-reward 1)
+	       ;; (trigger-reward -1))
 	       (schedule-event-relative 0 #'next :params (list task))))
 	    ((equal phase 'rule)
 	     (when (act-r-loaded?)
@@ -338,7 +338,8 @@
 	   (set-trial-rule-response-time (current-trial task)
 					 (mp-time))
 	   (set-trial-stimulus-onset-time (current-trial task)
-					  (mp-time))))
+					  (mp-time))
+	   (start-tms)))
 	
 	((equal (task-phase task) 'stimulus)
 	 (setf (task-phase task) 'pause)
@@ -518,21 +519,7 @@
 		    value ,phase
 		    )))))
 
-;;; ------------------------------------------------------------------
-;;; ACT-R IMPLEMENTATION OF TMS
-;;; ------------------------------------------------------------------
 
-(defparameter *tms-family1* t
-  "Type 1 Family of TMS interface -- disables buffers")
-
-(defparameter *tms-family1-target* 'retrieval
-  "The buffer targeted by PMd TMS")
-
-(defparameter *tms-family2* t
-  "Type 2 Family of TMS interface -- disables buffers")
-
-(defparameter *tms-family2-target* 'retrieval
-  "The buffer targeted by PMd TMS")
 
 ;;; ------------------------------------------------------------------
 ;;; DATA COLLECTION AND STATS
@@ -548,7 +535,9 @@
 	(trial-stimulus-response-latency trial)
 	(trial-accuracy trial)))
 
-(defparameter *col-names* '("Rule" "Stimulus" "RuleType" "StimulusType" "EncodingRT" "ExecutionRT" "Accuracy"))
+(defparameter *col-names* '("Rule" "Stimulus" "RuleType" "StimulusType"
+			    "EncodingRT" "ExecutionRT" "Accuracy")
+  "List of column names in log CSV file")
 
 (defun write-csv (table filename)
   "Writes a list of trials (formatted as in 'extract-results') in a CSV file"
@@ -594,22 +583,6 @@
 				(keywordp x)))
 	      lst)))
 
-(defun result-congruent-accuracy (res)
-  (nth 0 res))
-
-
-(defun result-congruent-rt (res)
-  (nth 1 res))
-
-
-(defun result-incongruent-accuracy (res)
-  (nth 2 res))
-
-
-(defun result-incongruent-rt (res)
-  (nth 3 res))
-
-	  
 (defun average-results (results)
   "Averages values across a list of results"
   (if (every #'result? results)
@@ -624,8 +597,7 @@
 					      results))))))
 	  (push avg meanres))))
     (progn
-      (format t "   Not every results is a result")
+      (format t "   Not every row is a result")
       (setf *results* results))))
 
 
-(defparameter *results* nil)
