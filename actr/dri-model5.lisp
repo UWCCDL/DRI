@@ -31,8 +31,6 @@
 
 (set-visloc-default screen-y lowest)
 
-;(set-visloc-default screen-y nearest)
-
 (chunk-type parity-fact number parity)
 
 (chunk-type (dri-object (:include visual-object))
@@ -111,7 +109,7 @@
 ;;; VISUAL PROCESSING
 
 (p look-at-location
-   "Looks at the screen if nothing to process" 
+   "Attend whatever is in the visual-location" 
    ?visual>
      state free
    - buffer full
@@ -128,18 +126,14 @@
 
 )
 
-#|
-(p recover-from-visual-change
-   "If the visual scene changes abrubtly, re-encode the screen"
-   ?visual>
-     error t
-==>
-   +visual-location>
-     kind screen
-   
-)|#
-
+;;; ------------------------------------------------------------------
 ;;; RULE ENCODING PHASE
+;;; ------------------------------------------------------------------
+;;; The rule encoding phase is made of two simple operations:
+;;; Attending the "rule" part of the instructions (i.e., the parity
+;;; cue "EVEN" or "ODD") and attending the "action" part (which can
+;;; be either a finger or a letter, depending on the condition
+;;; ------------------------------------------------------------------
 
 (p look-at-rule
    "Look at the rule part of the screen"
@@ -151,6 +145,7 @@
      preparation free
      processor free
      execution free
+     
    =visual>
      kind screen
      value rule
@@ -163,9 +158,11 @@
    "Encode the rule"
    ?visual>
      state free
+   
    ?imaginal>
      state free
      buffer empty
+
    =visual>
      kind rule
      value =RULE
@@ -229,7 +226,7 @@
 ;;; ------------------------------------------------------------------
 ;;; PREPARATION PHASE
 ;;; ------------------------------------------------------------------
-;;; During the preparation phase, the commands are prepared.
+;;; During the preparation phase, the commands are prepared. 
 ;;; ------------------------------------------------------------------
 
 (p prepare-concrete-response
@@ -278,6 +275,7 @@
 ;;; ------------------------------------------------------------------
 
 (p move-on
+   "Presses a key with the left hand to proceed after preparing the rule"
    =visual>
      kind action   
 
@@ -294,16 +292,15 @@
 
 ==>
    =imaginal>     
-   ;;+visual-location>
-   ;;  kind screen
 
-   -visual>
    -visual-location>
+
    +visual>
      isa clear
+
    +manual>
      isa punch
-     hand right
+     hand left
      finger index
 )
 
@@ -316,26 +313,9 @@
 ;;; motor command.
 ;;; ------------------------------------------------------------------
 
-#|
-(p look-at-target
-   ?visual>
-     state free
-
-   ?imaginal>
-     state free
-     buffer full
-     
-   =visual>
-     value stimulus
-
-==>
-
-   +visual-location>
-     kind target
-)
-|#
 
 (p retrieve-parity
+   "When looking at a target number, retrieve its parity"
    ?visual>
      state free
 
@@ -361,6 +341,7 @@
 
 
 (p parity-verified
+   "If the parity matches the instructions, proceed to response"
    ?imaginal>
      state free
 
@@ -378,17 +359,12 @@
      parity =PARITY
 ==>
    =imaginal>     
-   =goal>
+   *goal>
      step respond
 )
 
-;;; ------------------------------------------------------------------
-;;; RE-PREPARATION
-;;; ------------------------------------------------------------------
-;;; Reprepares the imaginal buffer if parity does not match
-;;; ------------------------------------------------------------------
-
 (p parity-not-verified
+   "If the parity is not verified, redo the preparation"
    ?imaginal>
      state free
 
@@ -405,10 +381,19 @@
      isa parity-fact
    - parity =PARITY
 ==>
-   =imaginal>     
-   =goal>
+   =imaginal>
+
+   *goal>
      step replan
 )
+
+
+;;; ------------------------------------------------------------------
+;;; RE-PREPARATION
+;;; ------------------------------------------------------------------
+;;; Reprepares the imaginal buffer if parity does not match
+;;; ------------------------------------------------------------------
+
 
 ;;; REPLANNING CONCRETE RESPONSES ------------------------------------
 
@@ -598,8 +583,6 @@
      state free  
 ==>
    -visual-location>
-
-;;   -visual>
 
    +visual>
      isa clear

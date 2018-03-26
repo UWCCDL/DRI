@@ -19,7 +19,7 @@
 ;         <return override value>
 ;       (funcall original buffer-name queries-list-or-spec))))
 
-(defparameter *tms-verbose* nil
+(defparameter *tms-verbose* t
   "A parameter to print output during the trace") 
 
 (defparameter *tms-start-time* nil
@@ -82,18 +82,20 @@
 
 (defun stop-tms ()
   "Initiates a simulated TMS pulse"
-  (when *tms-verbose*
-    format t "TMS Stopped at ~A~%" (mp-time)))
   (when (act-r-loaded?)
-    (cond (*tms-method1*
-	   (clear-buffer *tms-method1-target*)
-	   (when *tms-chunk*
-	     (set-buffer-chunk *tms-method1-target* *tms-chunk*)))
+    (when *tms-verbose*
+      (format t "TMS Stopped at ~A~%" (mp-time)))
+    (setf *tms-start-time* nil)
+    (when (act-r-loaded?)
+      (cond (*tms-method1*
+	     (clear-buffer *tms-method1-target*)
+	     (when *tms-chunk*
+	       (set-buffer-chunk *tms-method1-target* *tms-chunk*)))
 
-	  (*tms-method2*
-	   ;; Restore default action-time for target production
-	   (let ((production-list (no-output (pp))))
-	     (when (member *tms-method2-target* production-list)
-	       (spp-fct (list *tms-method2-target* :at 0.05)))))
-	  (t
-	   nil))))
+	    (*tms-method2*
+	     ;; Restore default action-time for target production
+	     (let ((production-list (no-output (pp))))
+	       (when (member *tms-method2-target* production-list)
+		 (spp-fct (list *tms-method2-target* :at 0.05)))))
+	    (t
+	     nil)))))
