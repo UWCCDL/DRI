@@ -1,76 +1,31 @@
 ;;;; =================================================================
-;;;; DRI MODEL
+;;;; DRI
 ;;;; -----------------------------------------------------------------
-;;;; An ACT-R model for the DRI (Delayed Rule Inferral) experiment
-;;;; by Patrick J. Rice.
+;;;; An ACT-R model for the DRI experiment by Patrick J. Rice.
 ;;;; -----------------------------------------------------------------
-;;;;                            _____
-;;;;                           (Start)
-;;;; . . . . . . . . . . . . . .``|``. . . . . . . . . . . . . . . . .
-;;;;                              |                     Encoding Phase
-;;;;                           Encode
-;;;;                        Instructions
-;;;;                              |
-;;;;                           Action
-;;;;                          Concrete?
-;;;;                        /           \
-;;;;                      Yes            No
-;;;;                     /                 \
-;;;;             Prepare                     Prepare
-;;;;            Concrete                     Abstract
-;;;;            Response                     Response
-;;;; . . . . . . . . . . \ . . . . . . . . / . . . . . . . . . . . . .
-;;;;                      \               /            Execution Phase
-;;;;                       Encode Stimulus  
-;;;;                              |
-;;;;                       Retrieve parity
-;;;;                              |
-;;;;                        Parity Match?
-;;;;                       /             \
-;;;;                    Yes               No
-;;;;                   /                    \
-;;;;           Action                         Action
-;;;;          Concrete?                      Concrete?
-;;;;         /         \                    /         \
-;;;;      Yes           No               Yes           No
-;;;;       |             |                |             |
-;;;;       |             |            Re-Prepare    Re-Prepare
-;;;;       |             |             Concrete      Abstract
-;;;;       |             |             Response      Response
-;;;;       |             |                |             |
-;;;;       |             +--------------- | ----+-------+
-;;;;       |                              |     |
-;;;;       +------+-----------------------+     |
-;;;;              |                             |                                  ;;;; . . . . . .  | . . . . . . . . . . . . . . | . . . . . . . . . . .
-;;;;              |                             |              Response
-;;;;           Respond                         Find
-;;;;           Planned                       Planned
-;;;;            Finger                        Letter
-;;;;              |                             |
-;;;;              |                           Respond
-;;;;              |                           Letter
-;;;;              |                          Position
-;;;;              |                             |
-;;;;              +--------------+--------------+
-;;;; . . . . . . . . . . . . .   |  . . . . . . . . . . . . . . . . . .
-;;;;                             |                         End of Trial
-;;;;                          (DONE)
-;;;;                           ````
+;;;; General idea is to have different models
+;;;; 
+;;;; Implementing TMS:
+;;;; TMS is implemented by adding 500ms to the execution time
+;;;; of any production that could be targeted. Productions encode
+;;;; control, so the assumption is legit.
+;;;; (Potentially, all of the prods could be tested!!!).
+;;;;
+;;;; to do:
+;;;; Add a DM phase, in which the model decides whether it is the case
+;;;; to respond or to invert.
 ;;;; ------------------------------------------------------------------
 
 (clear-all)
-(define-model dri6
+(define-model dri5
 
 (sgp :auto-attend t         ; Automatic encoding
      :esc t                 ; Yes to subsymbolic (need spreading activation) 
-     :blc 2                 ; Base level constant (any effect?)
+     :blc 3                 ; Base level constant (any effect?)
      :epl nil
-     ;;:er t
-     ;:ans 0.2
-     :imaginal-delay 0.083
+     :imaginal-delay 0.1
      ;;:alpha 0.5
      :conflict-set-hook tms-selection-hook
-     :motor-feature-prep-time 0.15
      )
 
 
@@ -100,10 +55,14 @@
 	;; Basic structures
 	(stimulus isa chunk)
 	(rule isa chunk)
+	(screen isa chunk)
+	(pause isa chunk)
 	(option isa chunk)
 	(target isa chunk)
 	(action isa chunk)
 	(instructions isa chunk)
+	;(can-proceed isa chunk)
+	;(mist-infer isa chunk)
 	(replan isa chunk)
 	(motor isa chunk)
 	(visuomotor isa chunk)
@@ -128,7 +87,7 @@
 	(nine-odd isa parity-fact
 		  number 9 parity odd)
 
-	;;; Paired Alternatives
+	;;; Alternatives
 	(index-middle isa pair
 		      target index
 		      alternative middle)
@@ -145,7 +104,7 @@
 	     target b
 	     alternative a)
 		  
-	)  ; End of chunks in DM
+	)
 
 ;;; VISUAL PROCESSING
 
@@ -322,10 +281,7 @@
 
    =imaginal>
    - parity nil  
-
-   ?visual>
-     state free
-   
+     
    ?imaginal>
      state free
 
@@ -403,8 +359,7 @@
      parity =PARITY
 ==>
    =imaginal>     
-
-   +goal>
+   *goal>
      step respond
 )
 
@@ -490,7 +445,7 @@
    *imaginal>
      response =NEW
    
-   +goal>
+   =goal>
      step respond  
 )
 
@@ -541,7 +496,7 @@
    *imaginal>
      letter =NEW
    
-   +goal>
+   =goal>
      step respond  
 )
 
@@ -555,7 +510,6 @@
 ;;; RESPONSE for CONCRETE CONDITION
 
 (p respond-concrete
-   "Responds to concrete trial by copying the imaginal slot" 
    =goal>
      step respond
    
@@ -588,7 +542,6 @@
 ;;; RESPONSE for ABSTRACT (visuomotor) CONDITION
 
 (p find-letter
-   "Scans the display looking for the letter stored in the imaginal plan"
    =imaginal>
      letter =SYMBOL
 
@@ -609,7 +562,6 @@
 
 
 (p respond-letter
-   "When the letter is found, respond with index or middle finger depending on position"
    =goal>
      step respond
 
