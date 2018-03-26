@@ -1,10 +1,59 @@
 ;;;; =================================================================
-;;;; DRI
+;;;; DRI MODEL
 ;;;; -----------------------------------------------------------------
-;;;; An ACT-R model for the DRI experiment by Patrick J. Rice.
+;;;; An ACT-R model for the DRI (Delayed Rule Inferral) experiment
+;;;; by Patrick J. Rice.
 ;;;; -----------------------------------------------------------------
-;;;;
-;;;; 
+;;;;                            _____
+;;;;                           (Start)
+;;;; ...........................``|``.................................
+;;;;                              |                     Encoding Phase
+;;;;                           Encode
+;;;;                        Instructions
+;;;;                              |
+;;;;                           Action
+;;;;                          Concrete?
+;;;;                        /           \
+;;;;                      Yes            No
+;;;;                     /                 \
+;;;;             Prepare                     Prepare
+;;;;            Concrete                     Abstract
+;;;;            Response                     Response
+;;;; ................... \ ............... / .........................
+;;;;                       Encode Stimulus             Execution Phase
+;;;;                              |
+;;;;                       Retrieve parity
+;;;;                              |
+;;;;                        Parity Match?
+;;;;                       /             \
+;;;;                    Yes               No
+;;;;                   /                    \
+;;;;           Action                         Action
+;;;;          Concrete?                      Concrete?
+;;;;         /         \                    /         \
+;;;;      Yes           No               Yes           No
+;;;;       |             |                |             |
+;;;;       |             |            Re-Prepare    Re-Prepare
+;;;;       |             |             Concrete      Abstract
+;;;;       |             |             Response      Response
+;;;;       |             |                |             |
+;;;;       |             +--------------- | ----+-------+
+;;;;       |                              |     |
+;;;;       +------+-----------------------+     |
+;;;;              |                             |
+;;;;           Respond                         Find
+;;;;           Planned                       Planned
+;;;;            Finger                        Letter
+;;;;              |                             |
+;;;;              |                           Respond
+;;;;              |                           Letter
+;;;;              |                          Position
+;;;;              |                             |
+;;;;              +-------------+---------------+
+;;;; ........................   |   ...................................
+;;;;                            |                          End of Trial
+;;;;                          (DONE)
+;;;;                           ````
 ;;;; ------------------------------------------------------------------
 
 (clear-all)
@@ -49,14 +98,10 @@
 	;; Basic structures
 	(stimulus isa chunk)
 	(rule isa chunk)
-	(screen isa chunk)
-	(pause isa chunk)
 	(option isa chunk)
 	(target isa chunk)
 	(action isa chunk)
 	(instructions isa chunk)
-	;(can-proceed isa chunk)
-	;(mist-infer isa chunk)
 	(replan isa chunk)
 	(motor isa chunk)
 	(visuomotor isa chunk)
@@ -81,7 +126,7 @@
 	(nine-odd isa parity-fact
 		  number 9 parity odd)
 
-	;;; Alternatives
+	;;; Paired Alternatives
 	(index-middle isa pair
 		      target index
 		      alternative middle)
@@ -98,7 +143,7 @@
 	     target b
 	     alternative a)
 		  
-	)
+	)  ; End of chunks in DM
 
 ;;; VISUAL PROCESSING
 
