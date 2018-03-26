@@ -1,0 +1,1 @@
+Rule,Stimulus,RuleType,StimulusType,EncodingRT,ExecutionRT,Accuracy
