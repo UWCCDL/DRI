@@ -585,6 +585,7 @@
 ;;; RESPONSE for ABSTRACT (visuomotor) CONDITION
 
 (p find-letter
+   "Scans the display looking for the letter stored in the imaginal plan"
    =imaginal>
      letter =SYMBOL
 
@@ -605,6 +606,7 @@
 
 
 (p respond-letter
+   "When the letter is found, respond with index or middle finger depending on position"
    =goal>
      step respond
 
