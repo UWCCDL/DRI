@@ -314,7 +314,7 @@
     (let* ((trial (current-trial task))
 	   (phase (task-phase task))
 	   (response (cdr (assoc key *key-finger-mappings*))))
-      (format t "Oila~%")
+      ;;(format t "Oila~%")
       (cond ((equal phase 'stimulus)
 	     
 	     (set-trial-actual-response trial response)
@@ -416,7 +416,7 @@
 	  ((equalp (task-phase task) 'rule)
 	   (setf results (build-vis-locs-for-rule
 			  (trial-rule (current-trial task))))))
-
+    #|
     (push `(isa visual-location
 		kind screen
 		value ,phase
@@ -425,7 +425,7 @@
 		screen-y 0
 		height 400 
 		width 400)
-	  results)
+	  results) |#
     (define-chunks-fct results)))
 
 (defun build-vis-locs-for-stimulus (stimulus)
@@ -436,10 +436,15 @@
 		 kind target
 		 value ,target
 		 color black
-		 screen-x ,(round (/ (- *screen-width* *char-width*) 2))
-		 screen-y ,(round (/ (- *screen-height* *char-height*) 2))
-		 height ,*char-height*
-		 width ,*char-width*)
+		 ;;screen-x ,(round (/ (- *screen-width* *char-width*) 2))
+		 ;;screen-y ,(round (/ (- *screen-height* *char-height*) 2))
+		 ;;height ,*char-height*
+		 ;;width ,*char-width*
+		 screen-x ,(round (/ *screen-width* 3))
+		 screen-y ,(round (/ *screen-height* 3))
+		 height ,(round (/ *screen-height* 3))
+		 width ,(round (/ *screen-width* 3))
+		 )
 	   results)
     
     (let ((n (1+ (length options))))
@@ -451,7 +456,7 @@
 		     screen-x ,(round (+ (* (1+ (position option options))
 					    (/ *screen-width* n))
 					 (* -1 (/ *char-width* 2))))
-		     screen-y ,(round (/ *screen-height* 3))
+		     screen-y ,(round (* (/ *screen-height* 3) 2))
 		     height ,*char-height*
 		     width ,*char-width*)
 	       results)))))
@@ -502,7 +507,7 @@
       (set-chunk-slot-value-fct new-chunk 'location pos))
     new-chunk))
 
-
+#|
 (defmethod vis-loc-to-obj ((stimulus list) vis-loc)
   "Transforms a stimulus into a visual object"
   (first (define-chunks-fct 
@@ -519,7 +524,7 @@
 		    value ,phase
 		    )))))
 
-
+|#
 
 ;;; ------------------------------------------------------------------
 ;;; DATA COLLECTION AND STATS

@@ -17,11 +17,11 @@
 ;;;; ------------------------------------------------------------------
 
 (clear-all)
-(define-model dri4
+(define-model dri5
 
 (sgp :auto-attend t         ; Automatic encoding
      :esc t                 ; Yes to subsymbolic (need spreading activation) 
-     :blc 1                 ; Base level constant (any effect?)
+     :blc 3                 ; Base level constant (any effect?)
      :epl nil
      :imaginal-delay 0.1
      ;;:alpha 0.5
@@ -29,9 +29,9 @@
      )
 
 
-;(set-visloc-default - kind screen screen-y lowest)
+(set-visloc-default screen-y lowest)
 
-(set-visloc-default screen-y nearest)
+;(set-visloc-default screen-y nearest)
 
 (chunk-type parity-fact number parity)
 
@@ -110,22 +110,25 @@
 
 ;;; VISUAL PROCESSING
 
-(p look-at-screen
+(p look-at-location
    "Looks at the screen if nothing to process" 
    ?visual>
      state free
-     buffer empty
+   - buffer full
      
    ?visual-location>
      state free
-     buffer empty
+     buffer full
+     
+   =visual-location>
 ==>
-   +visual-location>
-   - kind screen
-     screen-y lowest
-     ;;kind screen
+   +visual>
+     isa move-attention
+     screen-pos =visual-location
+
 )
 
+#|
 (p recover-from-visual-change
    "If the visual scene changes abrubtly, re-encode the screen"
    ?visual>
@@ -134,7 +137,7 @@
    +visual-location>
      kind screen
    
-)
+)|#
 
 ;;; RULE ENCODING PHASE
 
@@ -291,9 +294,13 @@
 
 ==>
    =imaginal>     
-   +visual-location>
-     kind screen
+   ;;+visual-location>
+   ;;  kind screen
 
+   -visual>
+   -visual-location>
+   +visual>
+     isa clear
    +manual>
      isa punch
      hand right
@@ -309,6 +316,7 @@
 ;;; motor command.
 ;;; ------------------------------------------------------------------
 
+#|
 (p look-at-target
    ?visual>
      state free
@@ -325,7 +333,7 @@
    +visual-location>
      kind target
 )
-
+|#
 
 (p retrieve-parity
    ?visual>
@@ -535,8 +543,12 @@
    ?imaginal>
      state free  
 ==>
-   +visual-location>
-     kind screen
+   -visual-location>
+
+;;   -visual-location>
+
+   +visual>
+     isa clear
    
    +manual>
      isa punch
@@ -585,8 +597,12 @@
    ?visual>
      state free  
 ==>
-   +visual-location>
-     kind screen
+   -visual-location>
+
+;;   -visual>
+
+   +visual>
+     isa clear
 
    +manual>
      isa punch
