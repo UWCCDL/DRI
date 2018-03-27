@@ -395,3 +395,119 @@ arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, angle=90, length=0.1)
 arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, angle=90, length=0.1)
 # Adds some numbers
 text(x = xs, y = ms + ses + 0.05, labels = round(ms, 2))
+
+
+modelbaseline<-c(0.987, 1.172, 0.780, 0.965)
+modeltms<-c(0.987, 1.25, 0.780, 0.965)
+modelencoding<-rep(1.28, 4) - 0.235
+
+#          INFERRED INSTRUCTED
+#CONCRETE    0.987      0.780
+#SYMBOLIC    1.172      0.965
+
+
+#           INFERRED INSTRUCTED
+#CONCRETE    0.987      0.780
+#SYMBOLIC    1.245      0.965
+
+megafigure<-function() {
+  oldmar <- par("mar")
+  par(mar=c(2,4,3,1)+0.1)
+  layout(matrix(c(1:3)))
+  k1 <- subset(ds, ds$Stimulation == "Early")
+  ms <- tapply(k1$EncodingTime, list(k1$Rule, k1$Instructed), mean)
+  ses <- tapply(k1$EncodingTime, list(k1$Rule, k1$Instructed), se)
+  xs <- barplot(ms, beside = T, legend=T, 
+                args.legend=c(border=NULL, bty="n", x="top"),
+                ylim=c(0, 1.7), main="(A) Encoding Times,\nAll Trials", border="white",
+                xlab="Task Type", ylab="Respons Times (secs)",
+                #col=c("grey65", "grey45", "grey65", "grey45")
+                col=c("#22AA22", "yellow", "#22AA22", "yellow")
+                #col=c("grey65", "grey45")
+  )
+  
+  arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, length=0.05, angle=90)
+  arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, length=0.05, angle=90)
+  #text(x = xs, y = ms + ses + 0.1, labels = round(ms, 2))
+  text(x = xs, y = 0.05, labels = round(ms, 3), adj=c(0.5,0))
+  points(x = xs, y = modelencoding, pch=21, cex=2, col="blue", bg="#1111CC55")
+  box(bty="o", lwd=2, col="blue")
+  
+  # Execution
+  k1 <- subset(ds, ds$Stimulation == "Late" & ds$Site == "Vertex")
+  ms <- tapply(k1$ResponseTime, list(k1$Rule, k1$Instructed), mean)
+  ses <- tapply(k1$ResponseTime, list(k1$Rule, k1$Instructed), se)
+  xs <- barplot(ms, beside = T, legend=F, 
+                ylim=c(0, 1.7), main="(B) Response Times,\nTMS on Vertex (Control Trials)", border="white", 
+                xlab="Task Type", ylab="Respons Times (secs)",
+                #col=c("grey65", "grey45", "grey65", "grey45")
+                col=c("#22AA22", "yellow", "#22AA22", "yellow")
+                #col=c("grey65", "grey45")
+  )
+  arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, length=0.05, angle=90)
+  arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, length=0.05, angle=90)
+  #text(x = xs, y = ms + ses + 0.1, labels = round(ms, 3))
+  text(x = xs, y = 0.05, labels = round(ms, 3), adj=c(0.5,0))
+  points(x = xs, y = modelbaseline, pch=21, cex=2, col="blue", bg="#1111CC55")
+  box(bty="o", lwd=2, col="red")
+  
+  # Execution, TMS
+  k1 <- subset(ds, ds$Stimulation == "Late" & ds$Site == "PMd")
+  ms <- tapply(k1$ResponseTime, list(k1$Rule, k1$Instructed), mean)
+  ses <- tapply(k1$ResponseTime, list(k1$Rule, k1$Instructed), se)
+  xs <- barplot(ms, beside = T, legend=F, 
+                ylim=c(0, 1.7), main="(C) Response Times,\nTMS on PMd", border="white", 
+                xlab="Task Type", ylab="Respons Times (secs)",
+                #col=c("grey65", "red", "grey65", "grey45")
+                col=c("#22AA22", "red", "#22AA22", "yellow")
+                #col=c("grey65", "grey45")
+  )
+  arrows(x0=xs, x1=xs, y0=ms, y1 = ms + ses, length=0.05, angle=90)
+  arrows(x0=xs, x1=xs, y0=ms, y1 = ms - ses, length=0.05, angle=90)
+  #text(x = xs, y = ms + ses + 0.1, labels = round(ms, 2))
+  text(x = xs, y = 0.05, labels = round(ms, 3), adj=c(0.5,0))
+  points(x = xs, y = modeltms, pch=21, cex=2, col=c("blue", "orange", "blue", "blue"), 
+         bg=c("#1111CC55", "#DD2222BB", "#1111CC55", "#1111CC55"))
+  box(bty="o", col="red", lwd=2)
+
+  # End
+  par(mar=oldmar)
+}
+
+png("newFig.png", res=300, height = 5, width = 3, units="in")
+megafigure()
+dev.off()
+
+## RMSE and CHISQ
+
+rmse <- function(vec1, vec2) {
+  sqrt(mean((vec1-vec2)**2))
+}
+
+# Encoding times
+enc <- subset(ds, ds$Stimulation == "Early")
+ms <- tapply(enc$EncodingTime, list(enc$Rule, enc$Instructed), mean)
+var <- tapply(enc$EncodingTime, list(enc$Rule, enc$Instructed), var)
+rmse(modelencoding, c(ms))
+
+X2 <- sum(((c(ms) - modelencoding) ** 2) / (c(var) ** 2)) 
+1 - pchisq(X2,3)
+
+# Vertex Exec times
+vex <-subset(ds, ds$Stimulation == "Late" & ds$Site == "Vertex")
+ms <- tapply(vex$ResponseTime, list(vex$Rule, vex$Instructed), mean)
+var <- tapply(vex$ResponseTime, list(vex$Rule, vex$Instructed), var)
+rmse(modelbaseline, c(ms))
+
+X2 <- sum(((c(ms) - modelbaseline) ** 2) / (c(var) ** 2)) 
+1 - pchisq(X2,3)
+
+
+# PMd Exec times
+pex <-subset(ds, ds$Stimulation == "Late" & ds$Site == "PMd")
+ms <- tapply(pex$ResponseTime, list(pex$Rule, pex$Instructed), mean)
+var <- tapply(pex$ResponseTime, list(pex$Rule, pex$Instructed), var)
+rmse(modeltms, ms)
+
+X2 <- sum(((c(ms) - modeltms) ** 2) / (c(var) ** 2)) 
+1 - pchisq(X2,3)
