@@ -486,28 +486,35 @@ rmse <- function(vec1, vec2) {
 
 # Encoding times
 enc <- subset(ds, ds$Stimulation == "Early")
-ms <- tapply(enc$EncodingTime, list(enc$Rule, enc$Instructed), mean)
-var <- tapply(enc$EncodingTime, list(enc$Rule, enc$Instructed), var)
-rmse(modelencoding, c(ms))
+encms <- tapply(enc$EncodingTime, list(enc$Rule, enc$Instructed), mean)
+encvar <- tapply(enc$EncodingTime, list(enc$Rule, enc$Instructed), var)
+rmse(modelencoding, c(encms))
 
-X2 <- sum(((c(ms) - modelencoding) ** 2) / (c(var) ** 2)) 
+X2 <- sum(((c(encms) - modelencoding) ** 2) / (c(encvar) ** 2)) 
 1 - pchisq(X2,3)
 
 # Vertex Exec times
 vex <-subset(ds, ds$Stimulation == "Late" & ds$Site == "Vertex")
-ms <- tapply(vex$ResponseTime, list(vex$Rule, vex$Instructed), mean)
-var <- tapply(vex$ResponseTime, list(vex$Rule, vex$Instructed), var)
-rmse(modelbaseline, c(ms))
+basems <- tapply(vex$ResponseTime, list(vex$Rule, vex$Instructed), mean)
+basevar <- tapply(vex$ResponseTime, list(vex$Rule, vex$Instructed), var)
+rmse(modelbaseline, c(basems))
 
-X2 <- sum(((c(ms) - modelbaseline) ** 2) / (c(var) ** 2)) 
+X2 <- sum(((c(basems) - modelbaseline) ** 2) / (c(basevar) ** 2)) 
 1 - pchisq(X2,3)
 
 
 # PMd Exec times
 pex <-subset(ds, ds$Stimulation == "Late" & ds$Site == "PMd")
-ms <- tapply(pex$ResponseTime, list(pex$Rule, pex$Instructed), mean)
-var <- tapply(pex$ResponseTime, list(pex$Rule, pex$Instructed), var)
+tmsms <- tapply(pex$ResponseTime, list(pex$Rule, pex$Instructed), mean)
+tmsvar <- tapply(pex$ResponseTime, list(pex$Rule, pex$Instructed), var)
 rmse(modeltms, ms)
 
-X2 <- sum(((c(ms) - modeltms) ** 2) / (c(var) ** 2)) 
+X2 <- sum(((c(tmsms) - modeltms) ** 2) / (c(tmsvar) ** 2)) 
+1 - pchisq(X2,3)
+
+all_model <- c(modelencoding, modelbaseline, modeltms)
+all_data <- c(c(encms), c(basems), c(tmsms))
+all_var <- c(c(encvar), c(basevar), c(tmsvar))
+
+X2 <- sum(((c(all_data) - all_model) ** 2) / (c(all_var) ** 2)) 
 1 - pchisq(X2,3)

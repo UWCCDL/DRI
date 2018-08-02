@@ -1,6 +1,0 @@
-(defparameter *buffers* '(visual visual-location retrieval imaginal goal manual))
-
-(defun simulate-tms-method1 ()
-  (dolist (buffer *buffers*)
-    (let ((filename (string-downcase (formal nil "~A-tms1-~A.txt" (current-model bufer)))))
-      (save-log filename))))
