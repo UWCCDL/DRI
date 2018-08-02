@@ -1,7 +1,8 @@
-# DRI Model
+# DRI, Data and Model
 
-This is an ACT-R model designed to simulate the results of Patrick
-J. Rice's DRI (Delayed Rule Inference) experiment.
+This repository contains the experimental data from Patrick
+J. Rice's DRI (Delayed Rule Inference) experiment, together with the 
+cognitive model designed to reproduce and explain the results.
 
 
 ## DRI Paradigm
@@ -46,6 +47,7 @@ No other effect was significant (see Data).
 
 ## The Model
 
+The model was implemented in the ACT-R Cognitive architecture (http://act-r.psy.cmu.edu/), version 7.5.
 The model follows a simpe strategy. The timeline of the task can be
 divided into three processing phases:
 
