@@ -41,7 +41,8 @@
 ;;;;       |             +--------------- | ----+-------+
 ;;;;       |                              |     |
 ;;;;       +------+-----------------------+     |
-;;;;              |                             |                                  ;;;; . . . . . .  | . . . . . . . . . . . . . . | . . . . . . . . . . .
+;;;;              |                             |
+;;;; . . . . . .  | . . . . . . . . . . . . . . | . . . . . . . . . . .
 ;;;;              |                             |              Response
 ;;;;           Respond                         Find
 ;;;;           Planned                       Planned
@@ -64,9 +65,9 @@
 (sgp :auto-attend t         ; Automatic encoding
      :esc t                 ; Yes to subsymbolic (need spreading activation) 
      :blc 2                 ; Base level constant (any effect?)
-     :epl nil
-     ;;:er t
-     ;:ans 0.2
+     :epl nil               ; Disable Prod Compilation
+     :er t                  ; Enable randomness
+     :ans 0.1               ; Retrieval noise
      :imaginal-delay 0.083
      ;;:alpha 0.5
      :conflict-set-hook tms-selection-hook
@@ -129,6 +130,7 @@
 		  number 9 parity odd)
 
 	;;; Paired Alternatives
+
 	(index-middle isa pair
 		      target index
 		      alternative middle)
