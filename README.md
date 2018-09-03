@@ -68,11 +68,12 @@ divided into three processing phases:
   3. The _Execution_ phase. During the execution phase, the parity is
   checked. Two things can happen:
 
-    3.1  If the parity is verified, then the prepared visuo/motor
-         response is executed as planned.
-    3.2  If the parity is violated (__inferred__ instructions), then a
-      	 new preparation phase is initiated. The new plan is then
-         executed.
+      3.1  If the parity is verified, then the prepared visuo/motor
+      response is executed as planned.
+
+	  3.2  If the parity is violated (__inferred__ instructions), then
+      a new preparation phase is initiated. The new plan is then
+      executed.
 		 
 
 The effect of TMS occurs only during the _Preparation_ phase for
