@@ -1,4 +1,4 @@
-# DRI, Data and Model
+# DRI Experiment, Data and Model
 
 This repository contains the experimental data from Patrick
 J. Rice's DRI (Delayed Rule Inference) experiment, together with the 
@@ -47,7 +47,9 @@ No other effect was significant (see Data).
 
 ## The Model
 
-The model was implemented in the ACT-R Cognitive architecture (http://act-r.psy.cmu.edu/), version 7.5.
+The model was implemented in the ACT-R Cognitive architecture
+(http://act-r.psy.cmu.edu/), version 7.5.
+
 The model follows a simpe strategy. The timeline of the task can be
 divided into three processing phases:
 
@@ -66,10 +68,10 @@ divided into three processing phases:
   3. The _Execution_ phase. During the execution phase, the parity is
   checked. Two things can happen:
 
-    * If the parity is verified, then the prepared command is
-      executed.
+    * If the parity is verified, then the prepared visuo/motor
+      response is executed as planned.
     * if the parity is violated (__inferred__ instructions), then a
-      new preparation phase is initiated.
+      new preparation phase is initiated. The new plan is then executed.
 
 
 The effect of TMS occurs only during the _Preparation_ phase for
