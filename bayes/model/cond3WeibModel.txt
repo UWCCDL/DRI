@@ -1,0 +1,47 @@
+
+data{
+C <- 10000
+for (i in 1:Ntotal){
+ones[i] <- 1
+zeros[i] <- 0
+}
+}
+
+model{
+
+for (i in 1:Ntotal){
+
+#3-par weibull distribution definition from Rouder et al 2005
+p[i] <- (shape[cond[i]] * pow((y[i] - shift[cond[i]]),(shape[cond[i]]-1)))/(pow((scale[cond[i]]),shape[cond[i]])) * exp(-(pow((y[i]-shift[cond[i]]),shape[cond[i]])/pow(scale[cond[i]],shape[cond[i]])))
+
+ones[i] ~ dbern(p[i]/C) #bernoulli trick
+
+}
+
+for (c in 1:Ncond){
+
+shape[c] ~ dgamma(eta1,eta2) T(0.01,)  #beta parameter. Is truncated to ensure posterior moments exist for the scale parameter.
+shift[c] ~ dunif(0,minRTpadded[c])
+
+minRTpadded[c] <- minRT[c]
+
+#drawing scale parameter from uniform...
+scale[c] ~ dunif(.01, 10000) #theta parameter
+
+#but constraining it by this.
+#using zeros trick (-log(likelihood)) - inverse gamma definition from Rouder et al 2003 (pg593), with -log() distributed
+phip[c] <- (nu1 + 1)*log(pow(scale[c],shape[c])) + nu2/pow(scale[c],shape[c]) + loggam(nu1) - nu1*log(nu2)
+zeros[c] ~ dpois(phip[c])
+
+}
+
+#priors recommended by Rouder et al 2005
+nu1 ~ dgamma(2, 0.1)
+nu2 ~ dgamma(2, 2.85)
+eta1 ~ dgamma(1, 0.02)
+eta2 ~ dgamma(2, 0.04)
+
+
+}
+
+
